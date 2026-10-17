@@ -24,13 +24,29 @@ export function Navbar() {
               <span className="hidden sm:block text-[11px] text-slate-500">Student stays in Kota</span>
             </div>
           </Link>
-          <nav className="hidden lg:flex items-center gap-1">
-            {[ ['/', 'Home'], ['/explore', 'Explore'], ['/how-it-works', 'Help'] ].map(([p, l]) => (
-              <Link key={p} to={p} className={`px-3 py-2 text-sm font-medium ${isActive(p) ? 'text-teal-700' : 'text-slate-600 hover:text-slate-900'}`}>{l}</Link>
+          <nav className="hidden lg:flex items-center gap-1" aria-label="Primary">
+            {[
+              ['/', 'Home'],
+              ['/explore', 'Explore'],
+              ['/how-it-works', 'How it works'],
+            ].map(([p, l]) => (
+              <Link
+                key={p}
+                to={p}
+                className={`px-3 py-2 text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-700 ${isActive(p) ? 'text-teal-800' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                {l}
+              </Link>
             ))}
           </nav>
           <div className="hidden md:flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-sm text-slate-500"><MapPin className="w-3.5 h-3.5" /><span>Kota, Rajasthan</span></div>
+            <div className="hidden xl:flex items-center gap-1.5 text-sm text-slate-500">
+              <MapPin className="w-3.5 h-3.5" />
+              <span>Kota, Rajasthan</span>
+            </div>
+            <Link to="/explore">
+              <Button size="sm" className="rounded-full px-4">Find a Hostel</Button>
+            </Link>
             {user ? (
               <div className="flex items-center gap-2">
                 {user.role === 'student' && (<><Link to="/favourites" className="p-2 text-slate-500 hover:text-teal-700"><Heart className="w-4 h-4" /></Link><Link to="/visits" className="p-2 text-slate-500 hover:text-teal-700"><Calendar className="w-4 h-4" /></Link></>)}
@@ -44,7 +60,7 @@ export function Navbar() {
               </div>
             ) : (
               <><Link to="/login"><Button variant="outline" size="sm" className="rounded-full px-4">Log in</Button></Link>
-              <Link to="/login?role=owner"><Button size="sm" className="rounded-full px-4">List your hostel</Button></Link></>
+              <Link to="/login?role=owner"><Button variant="outline" size="sm" className="rounded-full px-4">List your hostel</Button></Link></>
             )}
           </div>
           <button className="md:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
@@ -54,8 +70,12 @@ export function Navbar() {
       </div>
       {mobileOpen && (
         <div className="md:hidden border-t bg-white px-4 py-3 space-y-1">
-          <Link to="/" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 font-medium">Home</Link>
-          <Link to="/explore" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 font-medium">Explore</Link>
+          <Link to="/" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 font-medium rounded-lg">Home</Link>
+          <Link to="/explore" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 font-medium rounded-lg">Explore</Link>
+          <Link to="/how-it-works" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 font-medium rounded-lg">How it works</Link>
+          <Link to="/explore" onClick={() => setMobileOpen(false)} className="block pt-1">
+            <Button className="w-full rounded-full">Find a Hostel</Button>
+          </Link>
           {user ? <button onClick={handleLogout} className="w-full text-left px-3 py-2.5 text-red-600 font-medium">Logout</button>
             : <><Link to="/login" onClick={() => setMobileOpen(false)}><Button variant="outline" className="w-full rounded-full">Log in</Button></Link></>}
         </div>
