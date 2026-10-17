@@ -23,12 +23,9 @@ function hasWebGL() {
   }
 }
 
-const CREAM = '#f4efe6';
 const TEAL = '#0e5c63';
 const TEAL_DARK = '#0a3d44';
 const TERRACOTTA = '#c17a5c';
-const WINDOW = '#1a3036';
-const GRASS = '#c9d7c4';
 const PATH = '#efe4d4';
 const TRUNK = '#6a5344';
 const LEAF = '#6d8b68';
@@ -57,13 +54,17 @@ function FacadeWindows({
       const y = y0 + r * rowGap;
       items.push(
         <group key={`${r}-${c}`} position={[x, y, z]}>
-          <mesh>
-            <boxGeometry args={[0.34, 0.46, 0.06]} />
-            <meshStandardMaterial color={WINDOW} roughness={0.4} />
+          <mesh position={[0, 0, -0.02]}>
+            <boxGeometry args={[0.42, 0.54, 0.04]} />
+            <meshStandardMaterial color={TEAL} roughness={0.62} />
           </mesh>
-          <mesh position={[0, 0.26, 0.01]}>
-            <boxGeometry args={[0.4, 0.045, 0.07]} />
-            <meshStandardMaterial color={TEAL} roughness={0.55} />
+          <mesh>
+            <boxGeometry args={[0.3, 0.4, 0.05]} />
+            <meshStandardMaterial color="#10262c" roughness={0.25} metalness={0.08} />
+          </mesh>
+          <mesh position={[0, 0, 0.02]}>
+            <boxGeometry args={[0.012, 0.4, 0.02]} />
+            <meshStandardMaterial color="#d9efe8" roughness={0.4} />
           </mesh>
         </group>,
       );
@@ -100,13 +101,13 @@ function Tree({ position, scale = 1 }: { position: [number, number, number]; sca
         <cylinderGeometry args={[0.045, 0.07, 0.44, 6]} />
         <meshStandardMaterial color={TRUNK} roughness={0.95} />
       </mesh>
-      <mesh position={[0, 0.58, 0]}>
-        <coneGeometry args={[0.34, 0.48, 8]} />
-        <meshStandardMaterial color={LEAF} roughness={0.9} />
+      <mesh position={[0, 0.62, 0]}>
+        <sphereGeometry args={[0.38, 10, 8]} />
+        <meshStandardMaterial color={LEAF} roughness={0.88} />
       </mesh>
-      <mesh position={[0, 0.86, 0]}>
-        <coneGeometry args={[0.24, 0.38, 8]} />
-        <meshStandardMaterial color="#7d9a74" roughness={0.9} />
+      <mesh position={[0.12, 0.78, 0.05]}>
+        <sphereGeometry args={[0.26, 10, 8]} />
+        <meshStandardMaterial color="#5f7d5c" roughness={0.9} />
       </mesh>
     </group>
   );
@@ -139,29 +140,35 @@ function Campus() {
     group.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.16) * 0.045;
   });
 
-  const wall = useMemo(() => new THREE.MeshStandardMaterial({ color: CREAM, roughness: 0.86 }), []);
-  const roof = useMemo(() => new THREE.MeshStandardMaterial({ color: TERRACOTTA, roughness: 0.72 }), []);
-  const trim = useMemo(() => new THREE.MeshStandardMaterial({ color: TEAL, roughness: 0.5 }), []);
+  const wall = useMemo(() => new THREE.MeshStandardMaterial({ color: '#f7f1e8', roughness: 0.9 }), []);
+  const annexWall = useMemo(() => new THREE.MeshStandardMaterial({ color: '#e7efe8', roughness: 0.94 }), []);
+  const farWall = useMemo(() => new THREE.MeshStandardMaterial({ color: '#ddd4c8', roughness: 0.95 }), []);
+  const roof = useMemo(() => new THREE.MeshStandardMaterial({ color: '#c17a5c', roughness: 0.78 }), []);
+  const trim = useMemo(() => new THREE.MeshStandardMaterial({ color: TEAL, roughness: 0.55 }), []);
 
   return (
     <group ref={group}>
       {/* ground sits under every object */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
         <circleGeometry args={[4.6, 48]} />
-        <meshStandardMaterial color={GRASS} roughness={1} />
+        <meshStandardMaterial color="#b7c9b0" roughness={1} />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 1.55]}>
-        <planeGeometry args={[1.15, 2.4]} />
-        <meshStandardMaterial color={PATH} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0.15, 0.008, 0.15]} receiveShadow>
+        <circleGeometry args={[3.15, 40]} />
+        <meshStandardMaterial color="#d5e3cc" roughness={1} />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1.55, 0.01, 0.35]}>
-        <planeGeometry args={[1.6, 0.7]} />
-        <meshStandardMaterial color={PATH} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.016, 1.55]} receiveShadow>
+        <planeGeometry args={[1.05, 2.15]} />
+        <meshStandardMaterial color={PATH} roughness={0.95} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1.55, 0.016, 0.35]} receiveShadow>
+        <planeGeometry args={[1.35, 0.62]} />
+        <meshStandardMaterial color={PATH} roughness={0.95} />
       </mesh>
 
       {/* main hostel — origin at ground, height 3.05 */}
       <group position={[0, 0, 0]}>
-        <mesh position={[0, 1.52, 0]} material={wall} castShadow>
+        <mesh position={[0, 1.52, 0]} material={wall} castShadow receiveShadow>
           <boxGeometry args={[2.2, 3.05, 1.45]} />
         </mesh>
         {/* roof slab and parapet, seated on the top face */}
@@ -193,9 +200,9 @@ function Campus() {
         {[-1.13, 1.13].map((x) =>
           [0.62, 1.38, 2.14].map((y) =>
             [-0.28, 0.28].map((z) => (
-              <mesh key={`${x}-${y}-${z}`} position={[x, y, z]}>
-                <boxGeometry args={[0.06, 0.4, 0.26]} />
-                <meshStandardMaterial color={WINDOW} roughness={0.4} />
+              <mesh key={`${x}-${y}-${z}`} position={[x, y, z]} castShadow>
+                <boxGeometry args={[0.07, 0.36, 0.22]} />
+                <meshStandardMaterial color="#10262c" roughness={0.28} metalness={0.06} />
               </mesh>
             )),
           ),
@@ -204,7 +211,7 @@ function Campus() {
 
       {/* lower annex, shares the ground */}
       <group position={[-1.85, 0, -0.15]}>
-        <mesh position={[0, 0.95, 0]} material={wall}>
+        <mesh position={[0, 0.95, 0]} material={annexWall} castShadow receiveShadow>
           <boxGeometry args={[1.15, 1.9, 1.15]} />
         </mesh>
         <mesh position={[0, 1.95, 0]} material={roof}>
@@ -214,7 +221,7 @@ function Campus() {
       </group>
 
       {/* distant low block, grounded, smaller so the hostel stays the focus */}
-      <mesh position={[2.05, 0.55, -0.85]} material={wall}>
+      <mesh position={[2.05, 0.55, -0.85]} material={farWall} castShadow receiveShadow>
         <boxGeometry args={[0.95, 1.1, 0.8]} />
       </mesh>
       <mesh position={[2.05, 1.14, -0.85]} material={roof}>
@@ -279,14 +286,31 @@ export function HostelCanvas() {
       gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
       frameloop={reduced ? 'demand' : 'always'}
       onCreated={({ gl, camera }) => {
-        gl.setClearColor('#e7efe4', 1);
+        gl.shadowMap.enabled = true;
+        gl.shadowMap.type = THREE.PCFSoftShadowMap;
+        gl.setClearColor('#e4eee0', 1);
         camera.lookAt(0, 1.25, 0);
       }}
     >
       <CameraRig />
-      <ambientLight intensity={0.78} />
-      <hemisphereLight args={['#f7f3ec', '#8aa882', 0.4]} />
-      <directionalLight position={[5, 8, 6]} intensity={1.05} />
+      <ambientLight intensity={0.42} />
+      <hemisphereLight args={['#fff6ea', '#7d9476', 0.55]} />
+      <directionalLight
+        position={[4.2, 7.2, 3.2]}
+        intensity={1.45}
+        color="#fff3e4"
+        castShadow
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
+        shadow-camera-near={1}
+        shadow-camera-far={18}
+        shadow-camera-left={-6}
+        shadow-camera-right={6}
+        shadow-camera-top={6}
+        shadow-camera-bottom={-6}
+        shadow-bias={-0.0004}
+      />
+      <directionalLight position={[-3.5, 2.4, -2]} intensity={0.28} color="#d7ebe6" />
       <Suspense fallback={null}>
         <Campus />
       </Suspense>
