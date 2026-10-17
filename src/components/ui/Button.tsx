@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'violet';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   children: React.ReactNode;
@@ -16,14 +16,15 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const base = 'inline-flex items-center justify-center gap-2 font-medium rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
-  
+  const base = 'inline-flex items-center justify-center gap-2 font-medium rounded-xl transition-all duration-250 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+
   const variants = {
-    primary: 'bg-teal-600 hover:bg-teal-700 text-white focus:ring-teal-500 shadow-sm hover:shadow',
+    primary: 'bg-teal-600 hover:bg-teal-700 text-white focus:ring-teal-500 shadow-sm hover:shadow hover:-translate-y-0.5',
     secondary: 'bg-slate-800 hover:bg-slate-900 text-white focus:ring-slate-500',
     outline: 'border-2 border-teal-600 text-teal-700 hover:bg-teal-50 focus:ring-teal-500',
     ghost: 'text-slate-700 hover:bg-slate-100 focus:ring-slate-400',
     danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500',
+    violet: 'btn-violet focus:ring-violet-500',
   };
 
   const sizes = {

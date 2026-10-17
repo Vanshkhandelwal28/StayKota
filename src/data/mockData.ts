@@ -16,10 +16,36 @@ export const AMENITIES = [
   'CCTV', 'Study Room', 'Gym', 'Hot Water', 'Housekeeping', 'RO Water'
 ];
 
+/** Common house rules owners can multi-select (stored as string[] → PostgreSQL jsonb later). */
+export const COMMON_RULES = [
+  'No smoking',
+  'No alcohol',
+  'Gate closes at 9 PM',
+  'Gate closes at 10 PM',
+  'Gate closes at 10:30 PM',
+  'Visitors allowed till 6 PM',
+  'Visitors allowed till 7 PM',
+  'Mess compulsory',
+  'No cooking in room',
+  'ID proof mandatory at entry',
+  '1 month notice before vacating',
+  'Laundry on fixed days only',
+  'Study hours silence (9 PM – 6 AM)',
+  'Security deposit refundable after checkout inspection',
+];
+
 export const MOCK_USERS: User[] = [
   { id: 'u1', name: 'Aarav Sharma', email: 'aarav@student.com', role: 'student', phone: '+91 98765 43210' },
   { id: 'u2', name: 'Priya Patel', email: 'priya@owner.com', role: 'owner', phone: '+91 87654 32109' },
   { id: 'u3', name: 'Admin User', email: 'admin@staykota.com', role: 'admin' },
+];
+
+const defaultRules = [
+  'No smoking',
+  'No alcohol',
+  'Gate closes at 10:30 PM',
+  'Visitors allowed till 7 PM',
+  '1 month notice before vacating',
 ];
 
 export const MOCK_HOSTELS: Hostel[] = [
@@ -29,6 +55,7 @@ export const MOCK_HOSTELS: Hostel[] = [
     locality: 'Talwandi', address: '12, Near Allen Career Institute, Talwandi, Kota',
     category: 'boys', status: 'approved',
     amenities: ['WiFi', 'Laundry', 'Meals', 'Power Backup', 'CCTV', 'Study Room', 'Hot Water', 'RO Water'],
+    rules: [...defaultRules, 'Mess compulsory'],
     coverImage: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800&q=80',
     images: ['https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800&q=80'],
     roomTypes: [
@@ -43,6 +70,7 @@ export const MOCK_HOSTELS: Hostel[] = [
     description: 'Premium PG near Resonance and Vibrant Academy.',
     locality: 'Landmark', address: '45, Landmark City, Kota', category: 'boys', status: 'approved',
     amenities: ['WiFi', 'AC', 'Laundry', 'Meals', 'Parking', 'Power Backup', 'CCTV', 'Gym'],
+    rules: [...defaultRules, 'Study hours silence (9 PM – 6 AM)'],
     coverImage: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80',
     images: ['https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80'],
     roomTypes: [
@@ -56,6 +84,7 @@ export const MOCK_HOSTELS: Hostel[] = [
     description: 'Affordable hygienic accommodation for girls with security.',
     locality: 'Rajeev Gandhi Nagar', address: '78, R.G. Nagar, Kota', category: 'girls', status: 'approved',
     amenities: ['WiFi', 'Laundry', 'Meals', 'CCTV', 'Hot Water', 'RO Water'],
+    rules: ['No smoking', 'No alcohol', 'Gate closes at 9 PM', 'Visitors allowed till 6 PM', 'ID proof mandatory at entry', '1 month notice before vacating'],
     coverImage: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&q=80',
     images: ['https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&q=80'],
     roomTypes: [
@@ -69,6 +98,7 @@ export const MOCK_HOSTELS: Hostel[] = [
     description: 'Modern co-ed PG with separate floors.',
     locality: 'Indraprastha Industrial Area', address: 'Plot 22, IPIA, Kota', category: 'co-ed', status: 'approved',
     amenities: ['WiFi', 'AC', 'Laundry', 'Meals', 'Parking', 'Gym', 'Power Backup', 'CCTV'],
+    rules: [...defaultRules],
     coverImage: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800&q=80',
     images: ['https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800&q=80'],
     roomTypes: [
@@ -82,6 +112,7 @@ export const MOCK_HOSTELS: Hostel[] = [
     description: 'Budget option for serious aspirants.',
     locality: 'Jawahar Nagar', address: '3rd Cross, Jawahar Nagar, Kota', category: 'boys', status: 'pending',
     amenities: ['WiFi', 'Meals', 'Power Backup', 'CCTV'],
+    rules: ['No smoking', 'Gate closes at 10 PM', 'Mess compulsory'],
     coverImage: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80',
     images: [],
     roomTypes: [
@@ -94,6 +125,7 @@ export const MOCK_HOSTELS: Hostel[] = [
     description: 'Quiet study-friendly PG close to Indra Vihar coaching cluster.',
     locality: 'Indraprastha Industrial Area', address: 'Near Indra Vihar, Kota', category: 'boys', status: 'approved',
     amenities: ['WiFi', 'Meals', 'Laundry', 'Power Backup', 'CCTV'],
+    rules: [...defaultRules, 'Study hours silence (9 PM – 6 AM)'],
     coverImage: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80',
     images: ['https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80'],
     roomTypes: [
@@ -107,6 +139,7 @@ export const MOCK_HOSTELS: Hostel[] = [
     description: 'Focused environment for serious aspirants near Vigyan Nagar.',
     locality: 'Rajeev Gandhi Nagar', address: 'Vigyan Nagar extension, Kota', category: 'boys', status: 'approved',
     amenities: ['WiFi', 'Meals', 'Laundry', 'Study Room', 'CCTV'],
+    rules: [...defaultRules],
     coverImage: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&q=80',
     images: ['https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&q=80'],
     roomTypes: [
@@ -120,6 +153,7 @@ export const MOCK_HOSTELS: Hostel[] = [
     description: 'Safe girls hostel with warden and nutritious meals.',
     locality: 'Talwandi', address: 'Talwandi sector 4, Kota', category: 'girls', status: 'approved',
     amenities: ['WiFi', 'Meals', 'Laundry', 'CCTV', 'Hot Water', 'RO Water'],
+    rules: ['No smoking', 'No alcohol', 'Gate closes at 9 PM', 'Visitors allowed till 6 PM', 'ID proof mandatory at entry', '1 month notice before vacating'],
     coverImage: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800&q=80',
     images: ['https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800&q=80'],
     roomTypes: [

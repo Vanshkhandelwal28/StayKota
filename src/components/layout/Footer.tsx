@@ -8,7 +8,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-teal-500 flex items-center justify-center text-white font-bold">S</div>
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-violet-500 shadow-lg shadow-violet-500/20 flex items-center justify-center text-white font-bold">S</div>
               <span className="text-lg font-bold text-white">StayKota</span>
             </div>
             <p className="text-sm text-slate-400 max-w-xs">Honest hostel and PG discovery for students in Kota. Real photos, clear rent breakup, direct owner contact.</p>
@@ -16,16 +16,16 @@ export function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-4 text-sm">Explore</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link to="/explore?locality=Talwandi" className="hover:text-teal-400">Hostels in Talwandi</Link></li>
-              <li><Link to="/explore?category=girls" className="hover:text-teal-400">Girls hostels</Link></li>
-              <li><Link to="/explore?maxBudget=6000" className="hover:text-teal-400">Budget under ₹6k</Link></li>
+              <li><Link to="/explore?locality=Talwandi" className="hover:text-violet-400">Hostels in Talwandi</Link></li>
+              <li><Link to="/explore?category=girls" className="hover:text-violet-400">Girls hostels</Link></li>
+              <li><Link to="/explore?maxBudget=6000" className="hover:text-violet-400">Budget under ₹6k</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="text-white font-semibold mb-4 text-sm">Support</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link to="/how-it-works" className="hover:text-teal-400">How it works</Link></li>
-              <li><Link to="/login?role=owner" className="hover:text-teal-400">List your property</Link></li>
+              <li><Link to="/how-it-works" className="hover:text-violet-400">How it works</Link></li>
+              <li><Link to="/login?role=owner" className="hover:text-violet-400">List your property</Link></li>
             </ul>
           </div>
         </div>
