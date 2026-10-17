@@ -30,96 +30,103 @@ export function HomePage() {
   return (
     <div>
       <section className="bg-[#faf8f5]" aria-labelledby="hero-heading">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-10 lg:pt-14 lg:pb-16">
-          <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] gap-8 lg:gap-12 items-center">
-            <div>
-              <p className="inline-flex items-center gap-2 text-xs font-semibold tracking-wide uppercase text-teal-800">
-                <span className="w-1.5 h-1.5 rounded-full bg-teal-600" />
-                Kota · Hostels & PGs
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6 lg:pt-12 lg:pb-8">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-10 items-stretch">
+            <div className="flex flex-col justify-center max-w-xl">
+              <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-teal-800">
+                Kota · Hostels and PGs
               </p>
-              <h1 id="hero-heading" className="mt-3 text-[2rem] sm:text-5xl font-semibold leading-[1.12] tracking-tight text-[#10212b]">
+              <h1 id="hero-heading" className="mt-3 max-w-[12ch] text-[2.15rem] sm:text-5xl font-semibold leading-[1.08] tracking-[-0.025em] text-[#10212b]">
                 Find Your Stay in Kota.
               </h1>
-              <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-md leading-relaxed">
+              <p className="mt-4 max-w-sm text-[15px] sm:text-base leading-7 text-slate-600">
                 Discover hostels and PGs that fit your budget, location, and lifestyle.
               </p>
 
-              <form onSubmit={handleSearch} className="mt-7 bg-white border border-stone-200 rounded-2xl p-3 shadow-sm">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <label className="relative block">
-                    <span className="sr-only">Locality</span>
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <select
-                      value={locality}
-                      onChange={(e) => setLocality(e.target.value)}
-                      className="w-full pl-9 pr-3 py-3 rounded-xl text-sm text-slate-800 bg-stone-50 border border-transparent focus:outline-none focus:ring-2 focus:ring-teal-700"
-                    >
-                      <option value="">Locality</option>
-                      {LOCALITIES.map((l) => (
-                        <option key={l} value={l}>{l}</option>
-                      ))}
-                    </select>
+              <form onSubmit={handleSearch} className="mt-6 bg-white border border-stone-200 rounded-xl p-4 shadow-[0_1px_2px_rgba(16,33,43,0.04)]">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <label className="block">
+                    <span className="block text-xs font-medium text-slate-600 mb-1.5">Locality</span>
+                    <span className="relative block">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                      <select
+                        value={locality}
+                        onChange={(e) => setLocality(e.target.value)}
+                        className="w-full h-11 pl-9 pr-2 rounded-lg text-sm text-slate-800 bg-white border border-stone-200 focus:outline-none focus:ring-2 focus:ring-teal-800 focus:border-teal-800"
+                      >
+                        <option value="">Any</option>
+                        {LOCALITIES.map((l) => (
+                          <option key={l} value={l}>{l}</option>
+                        ))}
+                      </select>
+                    </span>
                   </label>
-                  <label className="relative block">
-                    <span className="sr-only">Monthly budget</span>
-                    <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <select
-                      value={maxBudget}
-                      onChange={(e) => setMaxBudget(e.target.value)}
-                      className="w-full pl-9 pr-3 py-3 rounded-xl text-sm text-slate-800 bg-stone-50 border border-transparent focus:outline-none focus:ring-2 focus:ring-teal-700"
-                    >
-                      <option value="">Monthly budget</option>
-                      <option value="5000">Under ₹5,000</option>
-                      <option value="8000">Under ₹8,000</option>
-                      <option value="12000">Under ₹12,000</option>
-                    </select>
+                  <label className="block">
+                    <span className="block text-xs font-medium text-slate-600 mb-1.5">Budget</span>
+                    <span className="relative block">
+                      <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                      <select
+                        value={maxBudget}
+                        onChange={(e) => setMaxBudget(e.target.value)}
+                        className="w-full h-11 pl-9 pr-2 rounded-lg text-sm text-slate-800 bg-white border border-stone-200 focus:outline-none focus:ring-2 focus:ring-teal-800 focus:border-teal-800"
+                      >
+                        <option value="">Any</option>
+                        <option value="5000">Under ₹5,000</option>
+                        <option value="8000">Under ₹8,000</option>
+                        <option value="12000">Under ₹12,000</option>
+                      </select>
+                    </span>
                   </label>
-                  <label className="relative block sm:col-span-2">
-                    <span className="sr-only">Sharing type</span>
-                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <select
-                      value={sharing}
-                      onChange={(e) => setSharing(e.target.value as SharingType | '')}
-                      className="w-full pl-9 pr-3 py-3 rounded-xl text-sm text-slate-800 bg-stone-50 border border-transparent focus:outline-none focus:ring-2 focus:ring-teal-700"
-                    >
-                      <option value="">Sharing type</option>
-                      <option value="single">Single</option>
-                      <option value="double">Double</option>
-                      <option value="triple">Triple</option>
-                    </select>
+                  <label className="block">
+                    <span className="block text-xs font-medium text-slate-600 mb-1.5">Sharing</span>
+                    <span className="relative block">
+                      <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                      <select
+                        value={sharing}
+                        onChange={(e) => setSharing(e.target.value as SharingType | '')}
+                        className="w-full h-11 pl-9 pr-2 rounded-lg text-sm text-slate-800 bg-white border border-stone-200 focus:outline-none focus:ring-2 focus:ring-teal-800 focus:border-teal-800"
+                      >
+                        <option value="">Any</option>
+                        <option value="single">Single</option>
+                        <option value="double">Double</option>
+                        <option value="triple">Triple</option>
+                      </select>
+                    </span>
                   </label>
                 </div>
-                <div className="mt-2 flex flex-col sm:flex-row gap-2">
+                <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-3">
                   <button
                     type="submit"
-                    className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-medium text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-800"
+                    className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-lg bg-teal-800 hover:bg-teal-900 text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-800"
                   >
                     <Search className="w-4 h-4" />
                     Explore Hostels
                   </button>
                   <Link
                     to="/login?role=owner"
-                    className="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-stone-300 text-sm font-medium text-[#10212b] hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-teal-800"
+                    className="inline-flex items-center justify-center h-11 px-2 text-sm font-medium text-slate-700 hover:text-teal-900 underline-offset-4 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-800 rounded-lg"
                   >
-                    List Your Property
+                    List your property
                   </Link>
                 </div>
               </form>
             </div>
 
-            <div className="relative">
-              <div className="relative h-[320px] sm:h-[420px] lg:h-[480px] rounded-3xl overflow-hidden border border-stone-200 bg-[#e7efe4]">
-                <Suspense fallback={<div className="w-full h-full bg-[#e7efe4]" aria-hidden />}>
+            <div className="flex flex-col min-h-[300px]">
+              <div className="relative flex-1 min-h-[300px] lg:min-h-[420px] rounded-xl overflow-hidden border border-stone-200 bg-[#e4eee0]">
+                <Suspense fallback={<div className="w-full h-full bg-[#e4eee0]" aria-hidden />}>
                   <HostelCanvas />
                 </Suspense>
               </div>
-              <p className="mt-3 text-xs text-slate-500">An illustrative hostel campus — listings come from StayKota’s catalogue, not this model.</p>
+              <p className="mt-2.5 text-xs leading-5 text-slate-500">
+                Illustrated campus. Search uses StayKota listings, not this model.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4" aria-label="Popular localities">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-8" aria-label="Popular localities">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium text-slate-500 mr-1">Popular:</span>
           {LOCALITIES.slice(0, 6).map((l, i) => (
@@ -134,7 +141,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10" aria-labelledby="featured-heading">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10" aria-labelledby="featured-heading">
         <div className="flex items-end justify-between mb-6 gap-4">
           <div>
             <p className="text-sm text-teal-800 font-medium mb-1">From the current catalogue</p>
@@ -154,7 +161,7 @@ export function HomePage() {
         </Link>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" aria-labelledby="benefits-heading">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6" aria-labelledby="benefits-heading">
         <h2 id="benefits-heading" className="sr-only">Why students use StayKota</h2>
         <div className="grid sm:grid-cols-3 gap-5">
           {[
@@ -171,7 +178,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-16" aria-labelledby="steps-heading">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-16" aria-labelledby="steps-heading">
         <h2 id="steps-heading" className="text-2xl font-semibold text-[#10212b] mb-5">How a search usually goes</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
