@@ -1,6 +1,6 @@
 # Phase 1 baseline audit
 
-Audit only. No application code was changed. The Scala walkthrough video was not attached with this brief, so visual notes below come from the written brief, not a frame-by-frame review of the video.
+Audit only for the first commit. The Scala walkthrough video was not attached with this brief, so visual notes come from the written brief, not a frame-by-frame review.
 
 ## Stack
 
@@ -36,30 +36,28 @@ Shared chrome: `Layout`, `Navbar`, `Footer`. UI primitives: `Button`, `Card`, `I
 - Hostel detail is public today. Signed-out users are not redirected to login before opening a hostel.
 - No app-store section was found on the landing page.
 
-## Baseline checks (main, before this note)
-
-Recorded on the current `main` checkout:
+## Baseline checks (main, before the audit note)
 
 - `npm run build` — pass (Vite production build).
-- `npm run typecheck` — fail, pre-existing: `tsconfig.node.json` sets `erasableSyntaxOnly`, which TypeScript 5.7.3 does not accept (`TS5023`). Not introduced by this audit.
-- No test script in `package.json`. Lint script is `oxlint`; not run in this pass.
+- `npm run typecheck` — fail, pre-existing: `tsconfig.node.json` sets `erasableSyntaxOnly`, which TypeScript 5.7.3 does not accept (`TS5023`).
+- No test script in `package.json`.
 
 ## Open pull requests already on the repo
 
-- [#1](https://github.com/Vanshkhandelwal28/StayKota/pull/1) closed, merged frontend.
-- [#2](https://github.com/Vanshkhandelwal28/StayKota/pull/2) open, rules and room pricing. Not merged into `main`.
-- [#3](https://github.com/Vanshkhandelwal28/StayKota/pull/3) open, landing hero and Three.js scene on `feature/landing-hero-3d`. Not merged into `main`.
+- #1 closed, merged frontend.
+- #2 open, rules and room pricing. Not merged into `main`.
+- #3 open, landing hero and Three.js scene. Not merged into `main`.
 
-This audit branch is based on `main`, so it does not include #2 or #3.
+This branch is based on `main`, so it does not include #2 or #3.
 
 ## Proposed files for later phases
 
 | Phase | Likely files | Stay out of |
 |---|---|---|
-| 2 Tokens | `src/index.css` | Page markup |
+| 2 Tokens | `src/index.css`, `index.html` | Page markup |
 | 3 Header and hero | `Navbar.tsx`, `HomePage.tsx` hero only | Explore, detail, auth |
-| 4 Strip and how-it-works | `HomePage.tsx`, maybe `HowItWorksPage.tsx` only if the landing section needs shared copy | Dashboards |
-| 5 Cards | `HostelCard.tsx`, locality chips on `HomePage.tsx` / `ExplorePage.tsx` | Detail logic |
+| 4 Strip and how-it-works | `HomePage.tsx` | Dashboards |
+| 5 Cards | `HostelCard.tsx`, locality chips on home and explore | Detail logic |
 | 6 Detail visuals | `HostelDetailPage.tsx` | Visit rules, routes |
 | 7 Auth return and visit prefill | `LoginPage.tsx`, `HostelDetailPage.tsx`, `AppContext.tsx` | New backend |
 | 8 Footer and CTA | `Footer.tsx`, lower part of `HomePage.tsx` | Invented testimonials |
@@ -70,5 +68,15 @@ This audit branch is based on `main`, so it does not include #2 or #3.
 
 - #2 and #3 both target `main` and will conflict with a landing redesign if merged in either order.
 - `AppContext` and unused `mockApi.ts` are two data styles. Later phases should keep using `AppContext` unless a phase explicitly switches the call sites.
-- Visit confirmation is client-only. The brief says not to present that as real persistence.
-- The reference video was not available here, so Phase 3 cannot be matched frame-for-frame until it is provided.
+- Visit confirmation is client-only. Do not present that as real persistence.
+- The reference video was not available here.
+
+## Phase 2 tokens
+
+Added on this same branch, without restyling page sections:
+
+- Colours in `src/index.css`: navy `#073B55`, blue `#176A96`, gold `#E7B43B`, paper `#F7F9F7`, mist `#F4F8F8`, ink `#506474`.
+- Display face: Cormorant Garamond, added to the existing Google Fonts request in `index.html`, with Georgia as fallback. UI face stays Inter.
+- Reusable utilities: `font-display`, `bg-navy`, `bg-paper`, `text-ink`, `text-gold`, `rounded-card`, `rounded-pill`, `shadow-card`, `max-w-page`.
+- Listing photos stay the existing Unsplash URLs in `src/data/mockData.ts` (hostel and room photos, `w=800`). No new image files and no invented property data.
+- Primary buttons still use their existing teal classes. Those get the new palette when the landing sections are redesigned, so dashboards do not change in this phase.

@@ -1,18 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #0d9488;
-  --color-primary-dark: #0f766e;
-  --color-primary-light: #14b8a6;
-  --color-navy: #0f172a;
-  --color-navy-light: #1e293b;
-  --color-cream: #faf8f5;
-  --color-cream-dark: #f5f1eb;
-  --color-accent: #f97316;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
+  /* StayKota visual system. Landing sections adopt these in later phases. */
+  --color-navy: #073b55;
+  --color-blue: #176a96;
+  --color-gold: #e7b43b;
+  --color-paper: #f7f9f7;
+  --color-mist: #f4f8f8;
+  --color-ink: #506474;
+
+  /* Names already used by the app, remapped onto the same palette. */
+  --color-primary: #176a96;
+  --color-primary-dark: #073b55;
+  --color-primary-light: #3d8eb4;
+  --color-navy-light: #176a96;
+  --color-cream: #f7f9f7;
+  --color-cream-dark: #e7eef0;
+  --color-accent: #e7b43b;
+  --color-success: #1f7a62;
+  --color-warning: #c9962a;
+  --color-error: #9f3d3d;
+
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+
+  --radius-card: 1.25rem;
+  --radius-pill: 999px;
+  --shadow-card: 0 10px 28px rgba(7, 59, 85, 0.08);
+  --spacing-page: 72rem;
 }
 
 @layer base {
@@ -20,9 +35,12 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-[var(--color-cream)] text-[var(--color-navy)] font-sans antialiased;
+    @apply bg-paper text-navy font-sans antialiased;
   }
   @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
