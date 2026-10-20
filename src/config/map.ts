@@ -1,19 +1,18 @@
 /**
  * Tile layers for hostel + coaching maps.
  *
- * Street: CARTO Voyager (cleaner than standard OSM).
+ * Default street: CARTO Positron (light_all) — free, clean, few POI icons
+ * so students mainly see our hostel + coaching pins.
  * Satellite: Esri World Imagery (free for reasonable use).
  *
- * Set VITE_CARTO_API_KEY in Vercel or .env.local (same key as in your CARTO email).
- * Fallback key keeps the demo working if the env var is missing.
- * Free tier: 5,000,000 requests / month (UTC).
+ * Optional VITE_CARTO_API_KEY for higher volume; public CDN works without it.
  */
-const CARTO_KEY =
-  import.meta.env.VITE_CARTO_API_KEY || 'cb1_4q50_1_0e10319187e80394facd422f';
+const CARTO_KEY = import.meta.env.VITE_CARTO_API_KEY as string | undefined;
 
-/** Street map (default). */
-export const MAP_TILE_URL =
-  `https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=${CARTO_KEY}`;
+/** Clean light basemap (Positron-style). Minimal shops/temples on the tiles. */
+export const MAP_TILE_URL = CARTO_KEY
+  ? `https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png?key=${CARTO_KEY}`
+  : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
 
 export const MAP_TILE_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
@@ -25,10 +24,14 @@ export const MAP_SATELLITE_URL =
 export const MAP_SATELLITE_ATTRIBUTION =
   'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community';
 
-/** Kota core + ~5 km. Leaflet: [[south, west], [north, east]] */
+/**
+ * Kota core + ~5 km buffer.
+ * Leaflet maxBounds: [[south, west], [north, east]]
+ * Students cannot pan far outside this area.
+ */
 export const KOTA_MAX_BOUNDS: [[number, number], [number, number]] = [
-  [25.12, 75.78],
-  [25.22, 75.90],
+  [25.10, 75.76],
+  [25.24, 75.92],
 ];
 
 export const KOTA_MIN_ZOOM = 12;
