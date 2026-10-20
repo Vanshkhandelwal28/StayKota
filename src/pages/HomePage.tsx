@@ -256,6 +256,34 @@ export function HomePage() {
           ))}
         </ol>
       </section>
+
+      <section className="bg-navy text-white" aria-labelledby="close-heading">
+        <div className="max-w-page mx-auto px-4 sm:px-6 lg:px-8 py-14 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div>
+            <p className="text-[11px] font-semibold tracking-[0.16em] uppercase text-gold">Kota</p>
+            <h2 id="close-heading" className="mt-2 font-display text-3xl sm:text-4xl font-semibold">
+              Look through stays, then visit the room.
+            </h2>
+            <p className="mt-3 max-w-md text-sm leading-6 text-white/75">
+              Search the demo catalogue by locality, budget and sharing. Nothing here reserves a bed.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link
+              to="/explore"
+              className="inline-flex items-center justify-center h-11 px-5 rounded-pill bg-gold text-navy text-sm font-medium hover:bg-white"
+            >
+              Explore Hostels
+            </Link>
+            <Link
+              to="/login?role=owner"
+              className="inline-flex items-center justify-center h-11 px-5 rounded-pill border border-white/30 text-sm font-medium text-white hover:bg-white/10"
+            >
+              List your property
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
