@@ -27,7 +27,34 @@ const STORAGE_KEYS = {
   favourites: 'staykota_favourites',
   visits: 'staykota_visits',
   hostels: 'staykota_hostels',
+  seed: 'staykota_seed',
 };
+
+const SEED_VERSION = 'map-demo-2026-10-20';
+
+function loadHostels(): Hostel[] {
+  const version = localStorage.getItem(STORAGE_KEYS.seed);
+  const savedRaw = localStorage.getItem(STORAGE_KEYS.hostels);
+  if (version === SEED_VERSION && savedRaw) {
+    try {
+      return JSON.parse(savedRaw) as Hostel[];
+    } catch {
+      return MOCK_HOSTELS;
+    }
+  }
+  let extras: Hostel[] = [];
+  if (savedRaw) {
+    try {
+      const saved = JSON.parse(savedRaw) as Hostel[];
+      const seedIds = new Set(MOCK_HOSTELS.map((h) => h.id));
+      extras = saved.filter((h) => h && !seedIds.has(h.id));
+    } catch {
+      extras = [];
+    }
+  }
+  localStorage.setItem(STORAGE_KEYS.seed, SEED_VERSION);
+  return [...MOCK_HOSTELS, ...extras];
+}
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
@@ -35,10 +62,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const [hostels, setHostels] = useState<Hostel[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.hostels);
-    return saved ? JSON.parse(saved) : MOCK_HOSTELS;
-  });
+  const [hostels, setHostels] = useState<Hostel[]>(loadHostels);
 
   const [favourites, setFavourites] = useState<Favourite[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.favourites);

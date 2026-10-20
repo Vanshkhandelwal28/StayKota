@@ -9,6 +9,8 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { LOCALITIES, AMENITIES } from '../data/mockData';
+import { LocationPickerMap } from '../components/map/LocationPickerMap';
+import { toCoordinates, type Coordinates } from '../lib/coordinates';
 import type { Hostel, ListingStatus, RoomType, SharingType } from '../types';
 
 type Section = 'overview' | 'listings' | 'visits' | 'payments';
@@ -58,6 +60,7 @@ export function OwnerDashboard() {
   const [fCover, setFCover] = useState('https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800&q=80');
   const [fRooms, setFRooms] = useState<RoomType[]>([emptyRoom('new')]);
   const [fStatus, setFStatus] = useState<ListingStatus>('draft');
+  const [fPin, setFPin] = useState<Coordinates | null>(null);
 
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const PAGE_SIZE = 6;
@@ -114,7 +117,7 @@ export function OwnerDashboard() {
     setFName(''); setFLocality(LOCALITIES[0]); setFAddress(''); setFCategory('boys');
     setFDesc(''); setFAmenities(['WiFi', 'Meals']);
     setFCover('https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800&q=80');
-    setFRooms([emptyRoom('new')]); setFStatus('draft'); setError(''); setFormOpen(true);
+    setFRooms([emptyRoom('new')]); setFStatus('draft'); setFPin(null); setError(''); setFormOpen(true);
   };
 
   const openEdit = (h: Hostel) => {
@@ -122,7 +125,7 @@ export function OwnerDashboard() {
     setFName(h.name); setFLocality(h.locality); setFAddress(h.address);
     setFCategory(h.category); setFDesc(h.description); setFAmenities([...h.amenities]);
     setFCover(h.coverImage); setFRooms(h.roomTypes.map(r => ({ ...r })));
-    setFStatus(h.status); setError(''); setFormOpen(true);
+    setFStatus(h.status); setFPin(toCoordinates(h.latitude, h.longitude)); setError(''); setFormOpen(true);
   };
 
   const saveListing = () => {
@@ -148,6 +151,7 @@ export function OwnerDashboard() {
         amenities: fAmenities,
         coverImage: fCover,
         images: [fCover],
+        ...(fPin ? { latitude: fPin.lat, longitude: fPin.lng } : {}),
         roomTypes: fRooms.map((r, i) => ({
           ...r,
           id: r.id.startsWith('rt-') && editing ? r.id : `rt-${id}-${i}`,
@@ -447,6 +451,7 @@ export function OwnerDashboard() {
                 <label className="text-sm font-medium text-slate-700">Address *</label>
                 <input value={fAddress} onChange={e => setFAddress(e.target.value)} className="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
               </div>
+              <LocationPickerMap value={fPin} onChange={setFPin} />
               <div>
                 <label className="text-sm font-medium text-slate-700">Description</label>
                 <textarea value={fDesc} onChange={e => setFDesc(e.target.value)} rows={3} className="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none" />

@@ -7,6 +7,8 @@ import { useApp } from '../context/AppContext';
 import { LOCALITIES, AMENITIES } from '../data/mockData';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { LocationPickerMap } from '../components/map/LocationPickerMap';
+import { toCoordinates, type Coordinates } from '../lib/coordinates';
 import type { Hostel, RoomType, SharingType, ListingStatus } from '../types';
 
 const STEPS = [
@@ -70,6 +72,7 @@ export function ListingWizardPage() {
   const [rules, setRules] = useState('No smoking. Visitors as per hostel policy. Security deposit refunded after inspection.');
   const [images, setImages] = useState<string[]>([]);
   const [coverIndex, setCoverIndex] = useState(0);
+  const [pin, setPin] = useState<Coordinates | null>(null);
 
   useEffect(() => {
     if (existing) {
@@ -82,6 +85,7 @@ export function ListingWizardPage() {
       setAmenities([...existing.amenities]);
       setImages(existing.images.length ? [...existing.images] : [existing.coverImage]);
       setDefaultDeposit(existing.roomTypes[0]?.deposit || 5000);
+      setPin(toCoordinates(existing.latitude, existing.longitude));
       setDirty(false);
     }
   }, [existing?.id]);
@@ -170,6 +174,7 @@ export function ListingWizardPage() {
       amenities,
       coverImage: cover,
       images: images.length ? images : [cover],
+      ...(pin ? { latitude: pin.lat, longitude: pin.lng } : {}),
       roomTypes: rooms.map((r, i) => ({
         ...r,
         id: r.id || `rt-${hostelId}-${i}`,
@@ -326,6 +331,13 @@ export function ListingWizardPage() {
                     className="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"
                     placeholder="e.g. Near Allen Sangyan, Talwandi" />
                 </div>
+                <LocationPickerMap
+                  value={pin}
+                  onChange={(next) => {
+                    setPin(next);
+                    markDirty();
+                  }}
+                />
                 <div>
                   <label className="text-sm font-medium text-slate-700">Description</label>
                   <textarea value={description} onChange={e => { setDescription(e.target.value); markDirty(); }} rows={4}
@@ -483,6 +495,11 @@ export function ListingWizardPage() {
                     <p className="font-semibold text-slate-900">{name || 'Untitled hostel'}</p>
                     <p className="text-sm text-slate-500">{locality} · {category} · {address}</p>
                     <p className="text-xs text-slate-400 mt-1">{rooms.length} room types · {amenities.length} amenities · {images.length} photos</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {pin
+                        ? `Map pin ${pin.lat.toFixed(5)}, ${pin.lng.toFixed(5)} · owner-entered, not verified`
+                        : 'No map pin'}
+                    </p>
                   </div>
                 </div>
                 <ul className="divide-y divide-slate-100 text-sm">

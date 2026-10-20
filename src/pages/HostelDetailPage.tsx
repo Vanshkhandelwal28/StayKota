@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   MapPin, Heart, Share2, Check, Calendar, Phone,
   Shield, Wifi, Wind, Utensils, Droplets, X, ChevronLeft, ChevronRight,
@@ -10,14 +10,15 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { DEMO_NOTE } from '../data/mockData';
 import type { RoomType } from '../types';
+import { HostelLocationMap } from '../components/map/HostelLocationMap';
 
 const amenityMeta: Record<string, { icon: React.ReactNode; label: string }> = {
-  Meals: { icon: <Utensils className="w-3.5 h-3.5" />, label: 'Mess (veg)' },
+  Meals: { icon: <Utensils className="w-3.5 h-3.5" />, label: 'Meals' },
   WiFi: { icon: <Wifi className="w-3.5 h-3.5" />, label: 'Wi-Fi' },
   Laundry: { icon: <Droplets className="w-3.5 h-3.5" />, label: 'Laundry' },
-  CCTV: { icon: <Eye className="w-3.5 h-3.5" />, label: 'CCTV & warden' },
+  CCTV: { icon: <Eye className="w-3.5 h-3.5" />, label: 'CCTV' },
   'Power Backup': { icon: <Zap className="w-3.5 h-3.5" />, label: 'Power backup' },
-  'Study Room': { icon: <BookOpen className="w-3.5 h-3.5" />, label: 'Study hall' },
+  'Study Room': { icon: <BookOpen className="w-3.5 h-3.5" />, label: 'Study room' },
   'RO Water': { icon: <Droplets className="w-3.5 h-3.5" />, label: 'RO water' },
   Parking: { icon: <Car className="w-3.5 h-3.5" />, label: 'Parking' },
   AC: { icon: <Wind className="w-3.5 h-3.5" />, label: 'AC' },
@@ -26,18 +27,16 @@ const amenityMeta: Record<string, { icon: React.ReactNode; label: string }> = {
   Housekeeping: { icon: <Check className="w-3.5 h-3.5" />, label: 'Housekeeping' },
 };
 
-const HOUSE_RULES = [
-  'Gate closes at 10:30 PM',
-  'Visitors allowed till 7 PM in common room',
-  'No smoking or alcohol on premises',
-  '1 month notice before vacating',
-];
+const HOUSE_RULES_NOTE = 'House rules are not stored on this demo listing. Ask the owner when you visit.';
 
 export function HostelDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { hostels, user, toggleFavourite, isFavourite, scheduleVisit } = useApp();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const hostel = hostels.find(h => h.id === id && h.status === 'approved');
+  const resumeApplied = useRef(false);
+  const listedHostelId = useRef<string | null>(null);
 
   const [selectedRoom, setSelectedRoom] = useState<RoomType | null>(null);
   const [visitDate, setVisitDate] = useState('');
@@ -50,20 +49,61 @@ export function HostelDetailPage() {
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
   useEffect(() => {
-    if (!hostel) return;
+    if (user) return;
+    const target = id ? `/hostel/${id}${searchParams.toString() ? `?${searchParams.toString()}` : ''}` : '/';
+    navigate(`/login?role=student&redirect=${encodeURIComponent(target)}`, { replace: true });
+  }, [user, id, navigate, searchParams]);
+
+  useEffect(() => {
+    if (!user || !hostel) return;
+    if (listedHostelId.current !== hostel.id) {
+      listedHostelId.current = hostel.id;
+      resumeApplied.current = false;
+      setStep('idle');
+    }
+    if (resumeApplied.current) return;
     const available = hostel.roomTypes.filter(r => r.available);
-    if (available.length === 0) return;
-    const sorted = [...available].sort((a, b) => a.rent - b.rent);
-    const double = sorted.find(r => r.sharingType === 'double');
-    setSelectedRoom(double || sorted[0]);
-  }, [hostel]);
+    const roomId = searchParams.get('room');
+    const resume = searchParams.get('resumeVisit') === '1';
+    const fromQuery = roomId ? available.find(r => r.id === roomId) : undefined;
+    if (fromQuery) setSelectedRoom(fromQuery);
+    else if (available.length > 0) {
+      const sorted = [...available].sort((a, b) => a.rent - b.rent);
+      const double = sorted.find(r => r.sharingType === 'double');
+      setSelectedRoom(double || sorted[0]);
+    }
+    if (resume && user?.role !== 'student') return;
+    if (resume && user?.role === 'student') setStep('date');
+    if (resume || roomId) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('resumeVisit');
+      next.delete('room');
+      setSearchParams(next, { replace: true });
+    }
+    resumeApplied.current = true;
+  }, [hostel, user, searchParams, setSearchParams]);
+
+  if (!user) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-20 text-center animate-fade-in">
+        <h1 className="font-display text-2xl font-semibold text-navy">Sign in required</h1>
+        <p className="mt-2 text-ink text-sm">Create an account or log in as a student to view hostel details.</p>
+        <Link
+          to={`/login?role=student&redirect=${encodeURIComponent(id ? `/hostel/${id}` : '/')}`}
+          className="mt-6 inline-flex items-center justify-center h-10 px-5 rounded-pill bg-navy text-white text-sm font-medium"
+        >
+          Go to sign in
+        </Link>
+      </div>
+    );
+  }
 
   if (!hostel) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-20 text-center animate-fade-in">
         <h1 className="text-2xl font-bold text-slate-900">Hostel not found</h1>
         <p className="mt-2 text-slate-500">This listing may be pending approval or does not exist.</p>
-        <Link to="/explore" className="mt-6 inline-block text-teal-600 font-medium hover:underline">← Browse hostels</Link>
+        <Link to="/explore" className="mt-6 inline-block text-navy font-medium hover:underline">← Browse hostels</Link>
       </div>
     );
   }
@@ -99,7 +139,8 @@ export function HostelDetailPage() {
   const startVisitFlow = () => {
     setError('');
     if (!user || user.role !== 'student') {
-      navigate(`/login?role=student&redirect=${encodeURIComponent(`/hostel/${id}`)}`);
+      const next = `/hostel/${id}?resumeVisit=1${selectedRoom ? `&room=${encodeURIComponent(selectedRoom.id)}` : ''}`;
+      navigate(`/login?role=student&redirect=${encodeURIComponent(next)}`);
       return;
     }
     setStep('date');
@@ -143,48 +184,46 @@ export function HostelDetailPage() {
   };
 
   return (
-    <div className="animate-fade-in bg-[#faf8f5] min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <nav className="flex items-center gap-1.5 text-sm text-slate-500 mb-4 flex-wrap">
-          <Link to="/" className="hover:text-teal-700">Home</Link>
-          <span>/</span>
-          <Link to={`/explore?locality=${encodeURIComponent(hostel.locality)}`} className="hover:text-teal-700">{hostel.locality}</Link>
-          <span>/</span>
-          <span className="text-slate-800 font-medium truncate">{hostel.name}</span>
+    <div className="animate-fade-in bg-paper min-h-screen">
+      <div className="max-w-page mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <nav className="flex items-center gap-1.5 text-sm text-ink mb-4 flex-wrap" aria-label="Breadcrumb">
+          <Link to="/" className="hover:text-navy">Home</Link>
+          <span aria-hidden>/</span>
+          <Link to={`/explore?locality=${encodeURIComponent(hostel.locality)}`} className="hover:text-navy">{hostel.locality}</Link>
+          <span aria-hidden>/</span>
+          <span className="text-navy font-medium truncate">{hostel.name}</span>
         </nav>
 
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">{hostel.name}</h1>
-              <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">{categoryLabel}</span>
+              <h1 className="font-display text-3xl sm:text-4xl font-semibold text-navy break-words">{hostel.name}</h1>
+              <span className="inline-flex px-2.5 py-0.5 rounded-pill text-xs font-medium bg-mist text-navy border border-navy/10">{categoryLabel}</span>
             </div>
-            <div className="flex items-center gap-1.5 mt-2 text-sm text-slate-600 flex-wrap">
-              <MapPin className="w-4 h-4 flex-shrink-0 text-slate-400" />
+            <div className="flex items-center gap-1.5 mt-2 text-sm text-ink flex-wrap">
+              <MapPin className="w-4 h-4 flex-shrink-0 text-gold" />
               <span>{hostel.address}</span>
-              <span className="text-slate-300">·</span>
-              <button type="button" className="text-teal-700 font-medium hover:underline">View on map</button>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             {user?.role === 'student' && (
               <button onClick={() => toggleFavourite(hostel.id)}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                  fav ? 'bg-red-50 border-red-200 text-red-600' : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-pill border text-sm font-medium transition-colors ${
+                  fav ? 'bg-navy border-navy text-gold' : 'bg-white border-navy/15 text-navy hover:border-navy/40'
                 }`}>
                 <Heart className={`w-4 h-4 ${fav ? 'fill-current' : ''}`} />
                 {fav ? 'Saved' : 'Save'}
               </button>
             )}
             <button onClick={handleShare}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:border-slate-300">
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-pill border border-navy/15 bg-white text-sm font-medium text-navy hover:border-navy/40">
               <Share2 className="w-4 h-4" />
-              {shareCopied ? 'Copied!' : 'Share'}
+              {shareCopied ? 'Copied' : 'Share'}
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 rounded-2xl overflow-hidden mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 rounded-card overflow-hidden mb-8">
           <button type="button" onClick={() => openGallery(0)}
             className="md:col-span-2 md:row-span-2 relative aspect-[4/3] md:aspect-auto md:min-h-[320px] bg-slate-100 group">
             <img src={galleryImages[0]} alt={hostel.name}
@@ -208,67 +247,59 @@ export function HostelDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-slate-900 mb-3">About this hostel</h2>
-              <p className="text-slate-600 leading-relaxed">{hostel.description}</p>
-              <p className="mt-3 text-xs text-slate-400">{DEMO_NOTE}</p>
+            <Card className="p-6 !rounded-card !border-navy/10 !shadow-card">
+              <h2 className="font-display text-2xl font-semibold text-navy mb-3">About this stay</h2>
+              <p className="text-ink leading-7">{hostel.description}</p>
+              <p className="mt-3 text-xs text-ink/80">{DEMO_NOTE}</p>
 
-              <h3 className="font-semibold text-slate-900 mt-6 mb-3">Amenities</h3>
+              <h3 className="font-semibold text-navy mt-6 mb-3">Amenities on this listing</h3>
               <div className="flex flex-wrap gap-2">
                 {hostel.amenities.map(a => {
                   const meta = amenityMeta[a] || { icon: <Check className="w-3.5 h-3.5" />, label: a };
                   return (
-                    <span key={a} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100 text-sm text-slate-700">
+                    <span key={a} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-pill bg-mist border border-navy/10 text-sm text-navy">
                       {meta.icon}{meta.label}
                     </span>
                   );
                 })}
               </div>
 
-              <h3 className="font-semibold text-slate-900 mt-6 mb-3">House rules</h3>
-              <div className="grid sm:grid-cols-2 gap-2.5">
-                {HOUSE_RULES.map(rule => (
-                  <div key={rule} className="flex items-start gap-2 text-sm text-slate-600">
-                    <Check className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
-                    <span>{rule}</span>
-                  </div>
-                ))}
-              </div>
+              <h3 className="font-semibold text-navy mt-6 mb-3">House rules</h3>
+              <p className="text-sm leading-6 text-ink">{HOUSE_RULES_NOTE}</p>
             </Card>
 
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-slate-900 mb-1">Room types & rent</h2>
-              <p className="text-sm text-slate-500 mb-5">Rent is monthly. Deposit and extras are separate — see breakup below.</p>
+            <Card className="p-6 !rounded-card !border-navy/10 !shadow-card">
+              <h2 className="font-display text-2xl font-semibold text-navy mb-1">Rooms and rent</h2>
+              <p className="text-sm text-ink mb-5">Monthly rent from the listing. Deposit and extras are separate when the owner entered them.</p>
 
-              <div className="grid sm:grid-cols-3 gap-4">
+              <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 {hostel.roomTypes.map(rt => {
                   const isSelected = selectedRoom?.id === rt.id;
                   const isPopular = rt.id === mostPopularId;
                   return (
                     <div key={rt.id}
-                      className={`relative rounded-2xl border-2 p-4 transition-all ${
-                        isSelected ? 'border-teal-500 bg-teal-50/40 shadow-sm' : 'border-slate-100 bg-white hover:border-slate-200'
+                      className={`relative rounded-card border p-4 transition-colors ${
+                        isSelected ? 'border-navy bg-mist shadow-card' : 'border-navy/10 bg-white'
                       } ${!rt.available ? 'opacity-60' : ''}`}>
                       {isPopular && rt.available && (
-                        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-teal-600 text-white text-[10px] font-semibold uppercase tracking-wide">
-                          Most popular
+                        <span className="absolute -top-2.5 left-4 px-2.5 py-0.5 rounded-pill bg-gold text-navy text-[10px] font-semibold uppercase tracking-wide">
+                          Lowest listed
                         </span>
                       )}
-                      <h3 className="font-semibold text-slate-900 text-sm mt-1">{rt.name}</h3>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        {rt.capacity} bed{rt.capacity > 1 ? 's' : ''}
-                        {rt.sharingType === 'single' ? ' · attached bath' : ' · common bath'}
+                      <h3 className="font-semibold text-navy text-sm mt-1">{rt.name}</h3>
+                      <p className="text-xs text-ink mt-0.5 capitalize">
+                        {rt.sharingType} · {rt.capacity} bed{rt.capacity > 1 ? 's' : ''}
                       </p>
                       <div className="mt-3">
-                        <span className="text-xl font-bold text-slate-900">₹{rt.rent.toLocaleString()}</span>
-                        <span className="text-xs text-slate-500">/mo</span>
+                        <span className="text-xl font-semibold text-navy">₹{rt.rent.toLocaleString('en-IN')}</span>
+                        <span className="text-xs text-ink">/mo</span>
                       </div>
                       <p className="text-xs mt-1">
                         {rt.available
                           ? <span className="text-emerald-600 font-medium">Available</span>
                           : <span className="text-amber-600 font-medium">Currently full</span>}
                       </p>
-                      <Button size="sm" variant={isSelected ? 'primary' : 'outline'} className="w-full mt-3 rounded-xl"
+                      <Button size="sm" variant={isSelected ? 'primary' : 'outline'} className={`w-full mt-3 rounded-pill ${isSelected ? '!bg-navy hover:!bg-blue !focus:ring-navy' : '!border-navy !text-navy'}`}
                         disabled={!rt.available} onClick={() => setSelectedRoom(rt)}>
                         {isSelected ? 'Selected' : 'Select'}
                       </Button>
@@ -278,44 +309,46 @@ export function HostelDetailPage() {
               </div>
 
               {selectedRoom && (
-                <div className="mt-6 rounded-xl bg-slate-50 border border-slate-100 p-5">
-                  <h3 className="font-semibold text-slate-900 text-sm mb-3">Transparent price breakup ({selectedRoom.name})</h3>
+                <div className="mt-6 rounded-card bg-mist border border-navy/10 p-5">
+                  <h3 className="font-semibold text-navy text-sm mb-3">Price breakup ({selectedRoom.name})</h3>
                   <dl className="space-y-2.5 text-sm">
                     <div className="flex justify-between">
-                      <dt className="text-slate-600">Monthly rent</dt>
-                      <dd className="font-medium text-slate-900">₹{selectedRoom.rent.toLocaleString()}</dd>
+                      <dt className="text-ink">Monthly rent</dt>
+                      <dd className="font-medium text-navy">₹{selectedRoom.rent.toLocaleString('en-IN')}</dd>
                     </div>
                     {selectedRoom.included.map(item => (
                       <div key={item} className="flex justify-between">
-                        <dt className="text-slate-600">{item}</dt>
-                        <dd className="text-slate-500">Included</dd>
+                        <dt className="text-ink">{item}</dt>
+                        <dd className="text-ink">Included</dd>
                       </div>
                     ))}
                     <div className="flex justify-between">
-                      <dt className="text-slate-600">Refundable deposit (one-time)</dt>
-                      <dd className="font-medium text-slate-900">
-                        {selectedRoom.deposit > 0 ? `₹${selectedRoom.deposit.toLocaleString()}` : 'Not specified'}
+                      <dt className="text-ink">Refundable deposit (one-time)</dt>
+                      <dd className="font-medium text-navy">
+                        {selectedRoom.deposit > 0 ? `₹${selectedRoom.deposit.toLocaleString('en-IN')}` : 'Not specified'}
                       </dd>
                     </div>
                     {selectedRoom.extraCharges.map(ec => (
                       <div key={ec.name} className="flex justify-between">
-                        <dt className="text-slate-600">{ec.name}{ec.optional ? ' (optional)' : ''}</dt>
-                        <dd className="font-medium text-slate-900">₹{ec.amount.toLocaleString()}{ec.optional ? ' / month' : ''}</dd>
+                        <dt className="text-ink">{ec.name}{ec.optional ? ' (optional)' : ''}</dt>
+                        <dd className="font-medium text-navy">₹{ec.amount.toLocaleString('en-IN')}{ec.optional ? ' / month' : ''}</dd>
                       </div>
                     ))}
-                    <div className="flex justify-between pt-2 border-t border-slate-200">
-                      <dt className="text-slate-600">Electricity</dt>
-                      <dd className="text-slate-500">Actuals, sub-metered</dd>
-                    </div>
                   </dl>
                 </div>
               )}
+            </Card>
+
+            <Card className="p-6 !rounded-card !border-navy/10 !shadow-card">
+              <h2 className="font-display text-2xl font-semibold text-navy mb-1">Hostel location</h2>
+              <p className="text-sm text-ink mb-4">{hostel.address}</p>
+              <HostelLocationMap hostel={hostel} />
             </Card>
           </div>
 
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-4">
-              <Card className="p-5 shadow-md border-slate-100">
+              <Card className="p-5 !rounded-card !border-navy/10 !shadow-card">
                 {step === 'success' ? (
                   <div className="text-center py-4 animate-fade-in">
                     <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4 animate-slide-up">
@@ -333,107 +366,96 @@ export function HostelDetailPage() {
                       This is a <strong>visit request</strong>, not a room reservation or payment.
                       Demo only — nothing was emailed or messaged.
                     </p>
-                    <Button variant="outline" className="mt-5 w-full rounded-xl"
+                    <Button variant="outline" className="mt-5 w-full rounded-pill !border-navy !text-navy"
                       onClick={() => { setStep('idle'); setVisitDate(''); setMessage(''); }}>
                       Request another visit
                     </Button>
-                    <Link to="/visits" className="block mt-3 text-sm text-teal-700 font-medium hover:underline">
-                      View my visits →
+                    <Link to="/visits" className="block mt-3 text-sm text-navy font-medium hover:underline">
+                      View my visits
                     </Link>
                   </div>
                 ) : (
                   <>
-                    <div className="mb-4">
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-2xl font-bold text-slate-900">₹{(selectedRoom?.rent ?? minRent).toLocaleString()}</span>
-                        <span className="text-sm text-slate-500">onwards / month</span>
-                      </div>
-                      <p className="text-xs text-slate-500 mt-1">
-                        {depositForSelected != null && depositForSelected > 0
-                          ? `+ ₹${depositForSelected.toLocaleString()} refundable deposit`
-                          : 'Deposit not specified'}
-                        {' · No brokerage'}
-                      </p>
+                    <div className="flex items-baseline justify-between gap-2 mb-1">
+                      <span className="text-2xl font-semibold text-navy">₹{minRent.toLocaleString('en-IN')}</span>
+                      <span className="text-sm text-ink">/ month from</span>
                     </div>
+                    {depositForSelected != null && depositForSelected > 0 && (
+                      <p className="text-xs text-ink mb-4">Deposit from ₹{depositForSelected.toLocaleString('en-IN')} (selected room)</p>
+                    )}
+                    {(!depositForSelected || depositForSelected === 0) && <p className="text-xs text-ink mb-4">Select a room for deposit details</p>}
 
-                    {(step === 'date' || step === 'confirm' || step === 'submitting' || step === 'error') && (
-                      <div className="mb-4 space-y-3">
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 mb-1.5">Visit date</label>
-                          <input type="date" min={today} value={visitDate}
-                            onChange={e => { setVisitDate(e.target.value); setError(''); }}
-                            disabled={step === 'confirm' || step === 'submitting'}
-                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:bg-slate-50" />
-                          <p className="text-xs text-slate-400 mt-1">Date only — no time selection</p>
+                    {step === 'idle' && (
+                      <Button className="w-full rounded-pill !bg-navy hover:!bg-blue" onClick={startVisitFlow}>
+                        <Calendar className="w-4 h-4 mr-2" />
+                        Request a visit
+                      </Button>
+                    )}
+
+                    {step === 'date' && (
+                      <div className="space-y-3 animate-fade-in">
+                        <label className="block text-sm font-medium text-navy">Preferred visit date</label>
+                        <input
+                          type="date"
+                          min={today}
+                          value={visitDate}
+                          onChange={(e) => setVisitDate(e.target.value)}
+                          className="w-full h-10 px-3 rounded-card border border-navy/15 text-sm focus:outline-none focus:ring-2 focus:ring-navy/20"
+                        />
+                        <label className="block text-sm font-medium text-navy mt-2">Message to owner (optional)</label>
+                        <textarea
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                          rows={3}
+                          placeholder="Any questions or preferred time window…"
+                          className="w-full px-3 py-2 rounded-card border border-navy/15 text-sm focus:outline-none focus:ring-2 focus:ring-navy/20 resize-none"
+                        />
+                        {error && <p className="text-sm text-red-600">{error}</p>}
+                        <div className="flex gap-2 pt-1">
+                          <Button variant="outline" className="flex-1 rounded-pill !border-navy !text-navy" onClick={() => setStep('idle')}>Back</Button>
+                          <Button className="flex-1 rounded-pill !bg-navy hover:!bg-blue" onClick={goToConfirm}>Continue</Button>
                         </div>
-                        {step === 'date' && (
-                          <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">Message (optional)</label>
-                            <textarea value={message} onChange={e => setMessage(e.target.value)} rows={2}
-                              placeholder="Any questions for the owner…"
-                              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none" />
-                          </div>
+                      </div>
+                    )}
+
+                    {step === 'confirm' && (
+                      <div className="space-y-3 animate-fade-in">
+                        <p className="text-sm text-ink">Confirm visit for <strong className="text-navy">{formatDisplayDate(visitDate)}</strong>
+                          {selectedRoom && <> · {selectedRoom.name}</>}?</p>
+                        {message.trim() && <p className="text-xs text-ink/80 bg-mist p-2 rounded-card">{message}</p>}
+                        {error && <p className="text-sm text-red-600">{error}</p>}
+                        <div className="flex gap-2">
+                          <Button variant="outline" className="flex-1 rounded-pill !border-navy !text-navy" onClick={() => setStep('date')}>Back</Button>
+                          <Button className="flex-1 rounded-pill !bg-navy hover:!bg-blue" onClick={submitVisit}>Confirm visit</Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {(step === 'submitting' || step === 'error') && (
+                      <div className="py-6 text-center">
+                        {step === 'submitting' && <p className="text-sm text-ink">Sending request…</p>}
+                        {step === 'error' && (
+                          <>
+                            <p className="text-sm text-red-600 mb-3">{error || 'Something went wrong'}</p>
+                            <Button className="rounded-pill !bg-navy" onClick={() => setStep('confirm')}>Try again</Button>
+                          </>
                         )}
                       </div>
                     )}
-
-                    {step === 'confirm' && (
-                      <div className="mb-4 p-3 rounded-xl bg-teal-50 border border-teal-100 text-sm">
-                        <p className="font-medium text-teal-900">Confirm visit request</p>
-                        <p className="text-teal-800 mt-1">{hostel.name}</p>
-                        <p className="text-teal-700 mt-0.5">
-                          {formatDisplayDate(visitDate)}
-                          {selectedRoom && ` · ${selectedRoom.name}`}
-                        </p>
-                        <p className="text-xs text-teal-600 mt-2">Not a reservation. Owner will coordinate exact time later.</p>
-                      </div>
-                    )}
-
-                    {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
-
-                    {step === 'idle' && (
-                      <Button className="w-full rounded-xl" size="lg" onClick={startVisitFlow}>
-                        <Calendar className="w-4 h-4" /> Request a visit
-                      </Button>
-                    )}
-                    {step === 'date' && (
-                      <div className="space-y-2">
-                        <Button className="w-full rounded-xl" size="lg" onClick={goToConfirm}>Continue</Button>
-                        <Button variant="ghost" className="w-full" onClick={() => setStep('idle')}>Cancel</Button>
-                      </div>
-                    )}
-                    {step === 'confirm' && (
-                      <div className="space-y-2">
-                        <Button className="w-full rounded-xl" size="lg" onClick={submitVisit}>Confirm visit request</Button>
-                        <Button variant="ghost" className="w-full" onClick={() => setStep('date')}>Back</Button>
-                      </div>
-                    )}
-                    {step === 'submitting' && (
-                      <Button className="w-full rounded-xl" size="lg" disabled loading>Submitting…</Button>
-                    )}
-                    {step === 'error' && (
-                      <Button className="w-full rounded-xl" size="lg" onClick={submitVisit}>Try again</Button>
-                    )}
-
-                    <button type="button"
-                      className="w-full mt-3 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-                      onClick={() => alert('Demo only: owner contact would open here. No real call is placed.')}>
-                      <Phone className="w-4 h-4" /> Call owner
-                    </button>
-
-                    <div className="mt-5 pt-4 border-t border-slate-100 flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-800 font-semibold text-sm flex-shrink-0">RS</div>
-                      <div>
-                        <p className="text-sm font-medium text-slate-900">Hostel Owner</p>
-                        <p className="text-xs text-slate-500">On StayKota · Demo listing</p>
-                        <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
-                          <Shield className="w-3 h-3 text-teal-600" />
-                          Never pay token money online. Always visit first.
-                        </p>
-                      </div>
-                    </div>
                   </>
                 )}
+              </Card>
+
+              <Card className="p-5 !rounded-card !border-navy/10 !shadow-card">
+                <h3 className="font-semibold text-navy text-sm mb-3">Owner contact</h3>
+                <p className="text-sm text-ink leading-relaxed">
+                  Contact details are shared after a visit is confirmed in this demo.
+                  Use the visit request flow above.
+                </p>
+                <div className="mt-3 flex items-center gap-2 text-sm text-ink">
+                  <Phone className="w-4 h-4 text-gold" />
+                  <span>Shown after confirmation</span>
+                </div>
               </Card>
             </div>
           </div>
@@ -441,32 +463,24 @@ export function HostelDetailPage() {
       </div>
 
       {galleryOpen && (
-        <div className="fixed inset-0 z-50 bg-black/95 flex flex-col">
-          <div className="flex items-center justify-between px-4 py-3 text-white">
-            <span className="text-sm">{galleryIndex + 1} / {images.length}</span>
-            <button onClick={() => setGalleryOpen(false)} className="p-2 rounded-full hover:bg-white/10" aria-label="Close gallery">
-              <X className="w-6 h-6" />
-            </button>
-          </div>
-          <div className="flex-1 flex items-center justify-center relative px-4">
-            <button onClick={() => setGalleryIndex(i => (i - 1 + images.length) % images.length)}
-              className="absolute left-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20" aria-label="Previous">
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <img src={images[galleryIndex]} alt="" className="max-h-[80vh] max-w-full object-contain rounded-lg" />
-            <button onClick={() => setGalleryIndex(i => (i + 1) % images.length)}
-              className="absolute right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20" aria-label="Next">
-              <ChevronRight className="w-6 h-6" />
-            </button>
-          </div>
-          <div className="flex justify-center gap-2 pb-6 overflow-x-auto px-4">
-            {images.map((src, i) => (
-              <button key={i} onClick={() => setGalleryIndex(i)}
-                className={`w-14 h-10 rounded-lg overflow-hidden flex-shrink-0 border-2 ${
-                  i === galleryIndex ? 'border-white' : 'border-transparent opacity-60'
-                }`}>
-                <img src={src} alt="" className="w-full h-full object-cover" />
-              </button>
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center" role="dialog" aria-modal="true">
+          <button type="button" onClick={() => setGalleryOpen(false)}
+            className="absolute top-4 right-4 text-white/80 hover:text-white p-2" aria-label="Close gallery">
+            <X className="w-6 h-6" />
+          </button>
+          <button type="button" onClick={() => setGalleryIndex((i) => (i - 1 + galleryImages.length) % galleryImages.length)}
+            className="absolute left-4 text-white/80 hover:text-white p-2" aria-label="Previous">
+            <ChevronLeft className="w-8 h-8" />
+          </button>
+          <img src={galleryImages[galleryIndex]} alt="" className="max-h-[85vh] max-w-[90vw] object-contain" />
+          <button type="button" onClick={() => setGalleryIndex((i) => (i + 1) % galleryImages.length)}
+            className="absolute right-4 text-white/80 hover:text-white p-2" aria-label="Next">
+            <ChevronRight className="w-8 h-8" />
+          </button>
+          <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-1.5">
+            {galleryImages.map((_, i) => (
+              <button key={i} type="button" onClick={() => setGalleryIndex(i)}
+                className={`w-2 h-2 rounded-full ${i === galleryIndex ? 'bg-white' : 'bg-white/40'}`} aria-label={`Photo ${i + 1}`} />
             ))}
           </div>
         </div>

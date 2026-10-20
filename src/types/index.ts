@@ -43,6 +43,10 @@ export interface Hostel {
   videoUrl?: string;
   latitude?: number;
   longitude?: number;
+  /** Sample listing. Not a verified Kota property. */
+  isDemo?: boolean;
+  /** How the pin was chosen. Never treat approximate pins as a verified address. */
+  locationAccuracy?: 'published' | 'osm' | 'approximate';
   roomTypes: RoomType[];
   createdAt: string;
   updatedAt: string;
@@ -74,4 +78,20 @@ export interface SearchFilters {
   maxBudget: number;
   sharingType: SharingType | '';
   category: '' | 'boys' | 'girls' | 'co-ed';
+}
+
+/** A coaching campus pin. Separate from hostel listings. */
+export interface CoachingCampus {
+  id: string;
+  name: string;
+  brand: string;
+  campusName?: string;
+  locality: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  website?: string;
+  locationAccuracy: 'published' | 'osm' | 'approximate';
+  /** Why this coordinate was chosen. Shown in the popup. */
+  note: string;
 }

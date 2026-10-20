@@ -1,63 +1,191 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, MapPin, User, LogOut, Heart, Calendar, LayoutDashboard, Shield } from 'lucide-react';
+import { Menu, X, MapPin, User, LogOut, Heart, Calendar, LayoutDashboard, Shield, Phone } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { Button } from '../ui/Button';
+import { phoneHref } from '../../config/contact';
+
+function StayKotaWordmark({ className = '' }: { className?: string }) {
+  return (
+    <Link to="/" className={`inline-flex items-center justify-center ${className}`} aria-label="StayKota home">
+      <span className="font-display text-[clamp(1.75rem,3.2vw,3.25rem)] font-semibold tracking-[0.02em] text-[#1265A1] leading-none">
+        StayK
+        <span className="relative inline-block">
+          o
+          <span
+            className="absolute left-1/2 -translate-x-1/2 -top-[0.28em] w-[0.72em] h-[0.28em] border-t-[2.5px] border-[#1265A1] rounded-t-[50%]"
+            aria-hidden
+          />
+        </span>
+        ta
+      </span>
+    </Link>
+  );
+}
 
 export function Navbar() {
   const { user, logout } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const tel = phoneHref();
 
-  const handleLogout = () => { logout(); navigate('/'); setMobileOpen(false); };
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    setMobileOpen(false);
+  };
   const isActive = (path: string) => location.pathname === path;
 
+  const callUs = (
+    <a
+      href={tel || '#contact'}
+      onClick={(e) => {
+        if (!tel) {
+          e.preventDefault();
+          window.alert('Call number will be added soon. Use WhatsApp or Log in for now.');
+        }
+      }}
+      className="inline-flex items-center gap-2 h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[#F5A91F] text-[#073B55] text-sm font-semibold shadow-sm hover:bg-[#e39a12] focus:outline-none focus:ring-2 focus:ring-[#F5A91F]/40"
+    >
+      <Phone className="w-4 h-4" aria-hidden />
+      Call Us
+    </a>
+  );
+
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-teal-600 flex items-center justify-center text-white font-bold">S</div>
-            <div className="leading-tight">
-              <span className="text-lg font-bold text-slate-900">StayKota</span>
-              <span className="hidden sm:block text-[11px] text-slate-500">Student stays in Kota</span>
-            </div>
-          </Link>
-          <nav className="hidden lg:flex items-center gap-1">
-            {[ ['/', 'Home'], ['/explore', 'Explore'], ['/how-it-works', 'Help'] ].map(([p, l]) => (
-              <Link key={p} to={p} className={`px-3 py-2 text-sm font-medium ${isActive(p) ? 'text-teal-700' : 'text-slate-600 hover:text-slate-900'}`}>{l}</Link>
-            ))}
-          </nav>
-          <div className="hidden md:flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-sm text-slate-500"><MapPin className="w-3.5 h-3.5" /><span>Kota, Rajasthan</span></div>
+    <header className="sticky top-0 z-50 bg-[#F7F8F7] border-b border-navy/5">
+      <div className="relative max-w-[90rem] mx-auto px-4 sm:px-8 lg:px-12">
+        <div className="flex items-center justify-between h-[4.5rem] sm:h-[5.5rem] lg:h-[6.25rem]">
+          <div className="flex items-center gap-2.5 sm:gap-3 z-10 min-w-0">
+            <button
+              type="button"
+              className="p-2 text-[#073B55] hover:bg-black/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy/30"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label="Open menu"
+              aria-expanded={mobileOpen}
+            >
+              {mobileOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+            </button>
+            <div className="hidden sm:block">{callUs}</div>
+          </div>
+
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto">
+            <StayKotaWordmark />
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-2.5 z-10">
             {user ? (
-              <div className="flex items-center gap-2">
-                {user.role === 'student' && (<><Link to="/favourites" className="p-2 text-slate-500 hover:text-teal-700"><Heart className="w-4 h-4" /></Link><Link to="/visits" className="p-2 text-slate-500 hover:text-teal-700"><Calendar className="w-4 h-4" /></Link></>)}
-                {user.role === 'owner' && <Link to="/owner"><Button variant="ghost" size="sm"><LayoutDashboard className="w-4 h-4" /> Dashboard</Button></Link>}
-                {user.role === 'admin' && <Link to="/admin"><Button variant="ghost" size="sm"><Shield className="w-4 h-4" /> Admin</Button></Link>}
-                <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-                  <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center"><User className="w-4 h-4 text-teal-700" /></div>
-                  <span className="text-sm font-medium text-slate-800">{user.name}</span>
-                  <button onClick={handleLogout} className="p-1.5 text-slate-400 hover:text-red-500" aria-label="Logout"><LogOut className="w-4 h-4" /></button>
+              <div className="hidden md:flex items-center gap-1.5">
+                {user.role === 'student' && (
+                  <>
+                    <Link to="/favourites" className="p-2 text-ink hover:text-navy rounded-full" aria-label="Favourites">
+                      <Heart className="w-4 h-4" />
+                    </Link>
+                    <Link to="/visits" className="p-2 text-ink hover:text-navy rounded-full" aria-label="Visits">
+                      <Calendar className="w-4 h-4" />
+                    </Link>
+                  </>
+                )}
+                {user.role === 'owner' && (
+                  <Link to="/owner" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-navy hover:bg-mist rounded-pill">
+                    <LayoutDashboard className="w-4 h-4" />
+                    Dashboard
+                  </Link>
+                )}
+                {user.role === 'admin' && (
+                  <Link to="/admin" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-navy hover:bg-mist rounded-pill">
+                    <Shield className="w-4 h-4" />
+                    Admin
+                  </Link>
+                )}
+                <div className="flex items-center gap-2 pl-2 border-l border-navy/10">
+                  <div className="w-7 h-7 rounded-full bg-mist flex items-center justify-center">
+                    <User className="w-3.5 h-3.5 text-navy" />
+                  </div>
+                  <span className="hidden lg:inline text-sm font-medium text-navy max-w-[8rem] truncate">{user.name}</span>
+                  <button onClick={handleLogout} className="p-1.5 text-ink hover:text-red-600 rounded-full" aria-label="Logout">
+                    <LogOut className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             ) : (
-              <><Link to="/login"><Button variant="outline" size="sm" className="rounded-full px-4">Log in</Button></Link>
-              <Link to="/login?role=owner"><Button size="sm" className="rounded-full px-4">List your hostel</Button></Link></>
+              <>
+                <Link
+                  to="/explore"
+                  className="hidden sm:inline-flex items-center gap-1.5 h-10 sm:h-11 px-4 rounded-full border border-[#073B55]/25 text-[#073B55] text-sm font-medium hover:bg-white focus:outline-none focus:ring-2 focus:ring-navy/30"
+                >
+                  <MapPin className="w-4 h-4" aria-hidden />
+                  Find a Location
+                </Link>
+                <Link
+                  to="/explore"
+                  className="inline-flex items-center h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[#073B55] text-white text-sm font-semibold hover:bg-[#0a4d6e] focus:outline-none focus:ring-2 focus:ring-navy/40"
+                >
+                  Book a Visit
+                </Link>
+              </>
             )}
           </div>
-          <button className="md:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
-            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
         </div>
       </div>
+
       {mobileOpen && (
-        <div className="md:hidden border-t bg-white px-4 py-3 space-y-1">
-          <Link to="/" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 font-medium">Home</Link>
-          <Link to="/explore" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 font-medium">Explore</Link>
-          {user ? <button onClick={handleLogout} className="w-full text-left px-3 py-2.5 text-red-600 font-medium">Logout</button>
-            : <><Link to="/login" onClick={() => setMobileOpen(false)}><Button variant="outline" className="w-full rounded-full">Log in</Button></Link></>}
+        <div className="border-t border-navy/10 bg-[#F7F8F7] px-4 sm:px-8 py-4 shadow-card">
+          <div className="max-w-[90rem] mx-auto space-y-1">
+            <div className="sm:hidden mb-3">{callUs}</div>
+            {[
+              ['/', 'Home'],
+              ['/explore', 'Explore'],
+              ['/how-it-works', 'How it works'],
+            ].map(([p, l]) => (
+              <Link
+                key={p}
+                to={p}
+                onClick={() => setMobileOpen(false)}
+                className={`block px-3 py-2.5 text-sm font-medium rounded-lg ${
+                  isActive(p) ? 'bg-mist text-navy' : 'text-navy hover:bg-mist'
+                }`}
+              >
+                {l}
+              </Link>
+            ))}
+            {user ? (
+              <>
+                {user.role === 'student' && (
+                  <>
+                    <Link to="/favourites" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-navy">Favourites</Link>
+                    <Link to="/visits" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-navy">Visits</Link>
+                  </>
+                )}
+                {user.role === 'owner' && (
+                  <Link to="/owner" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-navy">Dashboard</Link>
+                )}
+                {user.role === 'admin' && (
+                  <Link to="/admin" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-navy">Admin</Link>
+                )}
+                <button onClick={handleLogout} className="w-full text-left px-3 py-2.5 text-sm font-medium text-red-600">
+                  Logout
+                </button>
+              </>
+            ) : (
+              <div className="pt-2 flex flex-col gap-2">
+                <Link
+                  to="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="inline-flex items-center justify-center h-11 px-4 text-sm font-medium text-navy border border-navy/20 rounded-full"
+                >
+                  Log in
+                </Link>
+                <Link
+                  to="/explore"
+                  onClick={() => setMobileOpen(false)}
+                  className="inline-flex items-center justify-center h-11 px-4 text-sm font-semibold text-white bg-[#073B55] rounded-full sm:hidden"
+                >
+                  Find a Location
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </header>
