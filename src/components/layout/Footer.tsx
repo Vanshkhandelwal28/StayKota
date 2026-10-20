@@ -4,8 +4,8 @@ export function Footer() {
   return (
     <footer className="bg-navy text-white/80">
       <div className="max-w-page mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-          <div className="md:col-span-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
+          <div className="sm:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-full bg-gold text-navy flex items-center justify-center text-sm font-semibold font-display">S</div>
               <span className="text-base font-semibold text-white">StayKota</span>

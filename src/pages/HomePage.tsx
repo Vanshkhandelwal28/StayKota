@@ -37,7 +37,7 @@ export function HomePage() {
               </p>
               <h1
                 id="hero-heading"
-                className="mt-4 font-display text-[2.4rem] sm:text-5xl lg:text-[3.4rem] font-semibold leading-[1.08] tracking-tight text-white"
+                className="mt-4 font-display text-[2rem] sm:text-5xl lg:text-[3.4rem] font-semibold leading-[1.08] tracking-tight text-white"
               >
                 Find your{' '}
                 <em className="not-italic text-gold italic font-semibold">stay</em>
@@ -52,7 +52,7 @@ export function HomePage() {
                 onSubmit={handleSearch}
                 className="mt-8 bg-white rounded-xl p-3 shadow-card"
               >
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 min-w-0">
                   <label className="block">
                     <span className="sr-only">Locality</span>
                     <span className="relative block">
@@ -123,11 +123,11 @@ export function HomePage() {
             <div className="relative flex justify-center lg:justify-end">
               <div className="relative w-full max-w-md">
                 <div className="absolute -inset-3 rounded-card bg-gold/15 blur-sm" aria-hidden />
-                <div className="relative rounded-card overflow-hidden shadow-card border border-white/10 rotate-2 hover:rotate-0 transition-transform duration-500 ease-out">
+                <div className="relative rounded-card overflow-hidden shadow-card border border-white/10 sm:rotate-2 motion-safe:sm:hover:rotate-0 transition-transform duration-500 ease-out">
                   <img
                     src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900&q=80"
                     alt="Student room in a Kota hostel"
-                    className="w-full aspect-[4/5] object-cover"
+                    className="w-full aspect-[4/3] sm:aspect-[4/5] object-cover"
                     width={900}
                     height={1125}
                   />
@@ -271,13 +271,13 @@ export function HomePage() {
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
               to="/explore"
-              className="inline-flex items-center justify-center h-11 px-5 rounded-pill bg-gold text-navy text-sm font-medium hover:bg-white"
+              className="inline-flex items-center justify-center h-11 w-full sm:w-auto px-5 rounded-pill bg-gold text-navy text-sm font-medium hover:bg-white"
             >
               Explore Hostels
             </Link>
             <Link
               to="/login?role=owner"
-              className="inline-flex items-center justify-center h-11 px-5 rounded-pill border border-white/30 text-sm font-medium text-white hover:bg-white/10"
+              className="inline-flex items-center justify-center h-11 w-full sm:w-auto px-5 rounded-pill border border-white/30 text-sm font-medium text-white hover:bg-white/10"
             >
               List your property
             </Link>

@@ -41,14 +41,14 @@ export function HostelCard({ hostel }: HostelCardProps) {
           )}
         </div>
         <div className="p-4 flex flex-col flex-1">
-          <h3 className="font-display text-xl font-semibold text-navy leading-tight">{hostel.name}</h3>
+          <h3 className="font-display text-xl font-semibold text-navy leading-tight break-words">{hostel.name}</h3>
           <div className="flex items-center gap-1 mt-1 text-sm text-ink"><MapPin className="w-3.5 h-3.5 text-gold" /><span>{hostel.locality}, Kota</span></div>
           <div className="mt-2.5 flex flex-wrap gap-1.5">
             {tags.slice(0, 4).map(t => (
               <span key={t} className="px-2 py-0.5 rounded-md bg-mist text-[11px] text-navy border border-navy/10">{t}</span>
             ))}
           </div>
-          <div className="mt-auto pt-3 flex items-end justify-between gap-3">
+          <div className="mt-auto pt-3 flex flex-wrap items-end justify-between gap-3">
             <div>
               <span className="text-lg font-semibold text-navy">₹{minRent.toLocaleString('en-IN')}</span>
               <span className="text-xs text-ink"> / month from</span>

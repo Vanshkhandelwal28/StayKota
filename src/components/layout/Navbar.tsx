@@ -84,7 +84,7 @@ export function Navbar() {
                   <div className="w-7 h-7 rounded-full bg-mist flex items-center justify-center">
                     <User className="w-3.5 h-3.5 text-navy" />
                   </div>
-                  <span className="text-sm font-medium text-navy max-w-[8rem] truncate">{user.name}</span>
+                  <span className="hidden lg:inline text-sm font-medium text-navy max-w-[8rem] truncate">{user.name}</span>
                   <button
                     onClick={handleLogout}
                     className="p-1.5 text-ink hover:text-red-600 rounded-full"
@@ -139,9 +139,23 @@ export function Navbar() {
             How it works
           </Link>
           {user ? (
-            <button onClick={handleLogout} className="w-full text-left px-3 py-2.5 text-sm font-medium text-red-600">
-              Logout
-            </button>
+            <>
+              {user.role === 'student' && (
+                <>
+                  <Link to="/favourites" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-navy">Favourites</Link>
+                  <Link to="/visits" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-navy">Visits</Link>
+                </>
+              )}
+              {user.role === 'owner' && (
+                <Link to="/owner" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-navy">Dashboard</Link>
+              )}
+              {user.role === 'admin' && (
+                <Link to="/admin" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-navy">Admin</Link>
+              )}
+              <button onClick={handleLogout} className="w-full text-left px-3 py-2.5 text-sm font-medium text-red-600">
+                Logout
+              </button>
+            </>
           ) : (
             <div className="flex flex-col gap-2 pt-2">
               <Link

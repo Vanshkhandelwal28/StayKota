@@ -168,7 +168,7 @@ export function HostelDetailPage() {
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="font-display text-3xl sm:text-4xl font-semibold text-navy">{hostel.name}</h1>
+              <h1 className="font-display text-3xl sm:text-4xl font-semibold text-navy break-words">{hostel.name}</h1>
               <span className="inline-flex px-2.5 py-0.5 rounded-pill text-xs font-medium bg-mist text-navy border border-navy/10">{categoryLabel}</span>
             </div>
             <div className="flex items-center gap-1.5 mt-2 text-sm text-ink flex-wrap">
@@ -243,7 +243,7 @@ export function HostelDetailPage() {
               <h2 className="font-display text-2xl font-semibold text-navy mb-1">Rooms and rent</h2>
               <p className="text-sm text-ink mb-5">Monthly rent from the listing. Deposit and extras are separate when the owner entered them.</p>
 
-              <div className="grid sm:grid-cols-3 gap-4">
+              <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 {hostel.roomTypes.map(rt => {
                   const isSelected = selectedRoom?.id === rt.id;
                   const isPopular = rt.id === mostPopularId;
