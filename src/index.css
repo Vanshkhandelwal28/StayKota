@@ -59,6 +59,16 @@
   .animate-scale-in {
     animation: scaleIn 0.4s ease-out forwards;
   }
+  .feature-marquee-track {
+    animation: featureMarquee 32s linear infinite;
+    will-change: transform;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .feature-marquee-track {
+      animation: none;
+      transform: none;
+    }
+  }
 }
 
 @keyframes fadeIn {
@@ -72,4 +82,8 @@
 @keyframes scaleIn {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
+}
+@keyframes featureMarquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }

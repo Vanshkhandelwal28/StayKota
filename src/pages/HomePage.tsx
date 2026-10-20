@@ -141,13 +141,24 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="bg-gold text-navy" aria-label="What StayKota helps with">
-        <div className="max-w-page mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <ul className="flex flex-col sm:flex-row sm:flex-wrap sm:justify-between gap-2 sm:gap-6 text-sm font-medium">
-            <li>Rent, deposit and extras listed separately</li>
-            <li>Search by locality, budget and sharing</li>
-            <li>Request a visit date from the listing</li>
-          </ul>
+      <section className="bg-gold text-navy overflow-hidden" aria-label="What StayKota helps with">
+        <div className="py-3 overflow-hidden">
+          <div className="feature-marquee-track flex w-max">
+            {[0, 1].map((copy) => (
+              <ul
+                key={copy}
+                className="flex items-center gap-10 sm:gap-14 px-6 text-sm font-medium shrink-0"
+                aria-hidden={copy === 1}
+              >
+                <li className="whitespace-nowrap">Rent, deposit and extras listed separately</li>
+                <li className="w-1.5 h-1.5 rounded-full bg-navy/35 shrink-0" aria-hidden />
+                <li className="whitespace-nowrap">Search by locality, budget and sharing</li>
+                <li className="w-1.5 h-1.5 rounded-full bg-navy/35 shrink-0" aria-hidden />
+                <li className="whitespace-nowrap">Request a visit date from the listing</li>
+                <li className="w-1.5 h-1.5 rounded-full bg-navy/35 shrink-0" aria-hidden />
+              </ul>
+            ))}
+          </div>
         </div>
       </section>
 
