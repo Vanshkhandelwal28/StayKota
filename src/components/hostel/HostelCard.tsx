@@ -85,6 +85,9 @@ export function HostelCard({ hostel }: HostelCardProps) {
           <div className="flex items-center gap-1.5 mt-1 text-[14px] text-[#607386]">
             <MapPin className="w-3.5 h-3.5 text-[#F5A91F] shrink-0" aria-hidden />
             <span>{hostel.locality}, Kota</span>
+            {hostel.isDemo && (
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-[#176A96]">Demo</span>
+            )}
           </div>
 
           {amenityChips.length > 0 && (
