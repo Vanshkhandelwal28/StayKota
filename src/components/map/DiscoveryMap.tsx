@@ -100,7 +100,8 @@ export function DiscoveryMap({ hostels, onShowList }: DiscoveryMapProps) {
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [geoError, setGeoError] = useState<GeoError | null>(null);
   const [locating, setLocating] = useState(false);
-  const [showCoaching, setShowCoaching] = useState(false);
+  /** Coaching pins on by default so students see hostels + top institutes together. */
+  const [showCoaching, setShowCoaching] = useState(true);
 
   const mapped = useMemo(
     () =>
