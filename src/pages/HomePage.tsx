@@ -217,41 +217,87 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="max-w-page mx-auto px-4 sm:px-6 lg:px-8 py-6" aria-label="Popular localities">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-ink mr-1">Popular:</span>
-          {LOCALITIES.slice(0, 6).map((l, i) => (
-            <Link
-              key={l}
-              to={`/explore?locality=${encodeURIComponent(l)}`}
-              className={`px-3.5 py-1.5 rounded-pill text-sm font-medium focus:outline-none focus:ring-2 focus:ring-navy/30 ${
-                i === 0
-                  ? 'bg-navy text-white'
-                  : 'bg-white text-ink border border-navy/10 hover:border-navy/30'
-              }`}
-            >
-              {l}
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="max-w-page mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className="text-[11px] font-semibold tracking-[0.16em] uppercase text-gold">From the demo catalogue</p>
-            <h2 className="mt-1 font-display text-3xl sm:text-4xl font-semibold text-navy">Hostels near coaching areas</h2>
+      <section
+        className="relative bg-[#F8F7F2] overflow-hidden"
+        aria-labelledby="featured-heading"
+      >
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 w-1/2 max-w-xl opacity-[0.12] hidden lg:block"
+          aria-hidden
+          style={{
+            backgroundImage:
+              'url(https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=900&q=40)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <div className="relative max-w-page mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-4" aria-label="Popular localities">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-[#607386] mr-1">Popular:</span>
+            {LOCALITIES.slice(0, 6).map((l, i) => (
+              <Link
+                key={l}
+                to={`/explore?locality=${encodeURIComponent(l)}`}
+                className={`px-3.5 py-1.5 rounded-full text-sm font-medium focus:outline-none focus:ring-2 focus:ring-navy/30 ${
+                  i === 0
+                    ? 'bg-[#073B55] text-white'
+                    : 'bg-white text-[#607386] border border-[#E1E7EA] hover:border-[#073B55]/35'
+                }`}
+              >
+                {l}
+              </Link>
+            ))}
           </div>
-          <Link to="/explore" className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-navy">
-            View all stays <ArrowRight className="w-4 h-4" />
-          </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featured.map((h, i) => (
-            <div key={h.id} className="animate-slide-up" style={{ animationDelay: `${i * 0.08}s` }}>
-              <HostelCard hostel={h} />
+
+        <div className="relative max-w-page mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-14 sm:pb-16">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-8">
+            <div className="max-w-xl">
+              <p className="text-[13px] sm:text-[14px] font-semibold tracking-[0.16em] uppercase text-[#F5A91F]">
+                Near coaching hubs
+              </p>
+              <h2
+                id="featured-heading"
+                className="mt-2 font-display text-[2rem] sm:text-[2.35rem] lg:text-[2.6rem] font-semibold text-[#073B55] leading-[1.15]"
+              >
+                Hostels near{' '}
+                <span className="relative inline-block">
+                  coaching areas
+                  <span
+                    className="absolute left-0 right-0 -bottom-1 h-[3px] rounded-full bg-[#F5A91F]/80"
+                    aria-hidden
+                  />
+                </span>
+              </h2>
+              <p className="mt-3 text-[15px] leading-relaxed text-[#607386] max-w-md">
+                Stay close to your goals with safe, comfortable and well-connected hostels in Kota's top coaching areas.
+              </p>
             </div>
-          ))}
+            <div className="flex flex-col items-start lg:items-end gap-3">
+              <p
+                className="font-display italic text-[#176A96] text-lg sm:text-xl leading-snug text-left lg:text-right"
+                aria-hidden
+              >
+                Better Stays
+                <br />
+                Brighter Futures
+                <span className="block w-14 h-[2px] mt-1.5 ml-0 lg:ml-auto rounded-full bg-[#F5A91F]" />
+              </p>
+              <Link
+                to="/explore"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#176A96] hover:text-[#073B55] focus:outline-none focus:ring-2 focus:ring-navy/30 rounded-md"
+              >
+                View all stays <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-7">
+            {featured.map((h, i) => (
+              <div key={h.id} className="animate-slide-up" style={{ animationDelay: `${i * 0.08}s` }}>
+                <HostelCard hostel={h} />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
