@@ -1,18 +1,22 @@
 /**
  * Tile layer for the hostel + coaching map.
  *
- * Carto Positron is free for reasonable public use, lighter than standard OSM
- * (fewer shop / temple / restaurant labels), and keeps roads + locality names.
- * Your hostel and coaching pins stay fully under app control.
+ * CARTO Voyager (cleaner than standard OSM — fewer shop/temple labels).
+ * Key is read from VITE_CARTO_API_KEY when set (Vercel / local .env).
+ * A project default is used only so the public demo keeps working;
+ * rotate the key in the CARTO dashboard if it is ever leaked or abused.
  *
- * Docs: https://github.com/CartoDB/basemap-styles
- * Attribution required. Do not commit API keys here.
- *
- * Before very high production traffic, confirm terms or switch to a self-hosted
- * / commercial OSM-compatible host.
+ * Free tier: 5,000,000 map requests / month (UTC).
+ * Docs: https://docs.carto.com/carto-basemaps
+ * Attribution required.
  */
-export const MAP_TILE_URL =
-  'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+const CARTO_KEY =
+  (typeof import.meta !== 'undefined' &&
+    (import.meta as ImportMeta & { env?: { VITE_CARTO_API_KEY?: string } }).env
+      ?.VITE_CARTO_API_KEY) ||
+  'cb1_4q50_1_0e10319187e80394facd422f';
+
+export const MAP_TILE_URL = `https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=${CARTO_KEY}`;
 
 export const MAP_TILE_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
