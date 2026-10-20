@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, MapPin, IndianRupee, Users, FileText, Phone, GraduationCap, ArrowRight, Check, BookOpen } from 'lucide-react';
+import { Search, MapPin, IndianRupee, Users, FileText, Phone, GraduationCap, ArrowRight, Check, BookOpen, Home, Star } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { HostelCard } from '../components/hostel/HostelCard';
 import { LOCALITIES } from '../data/mockData';
@@ -27,30 +27,71 @@ export function HomePage() {
 
   return (
     <div className="animate-fade-in">
-      <section className="relative bg-navy overflow-hidden" aria-labelledby="hero-heading">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(23,106,150,0.35),_transparent_55%)] pointer-events-none" />
-        <div className="relative max-w-page mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-14 lg:pt-16 lg:pb-20">
-          <div className="grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] gap-10 lg:gap-12 items-center">
-            <div>
-              <p className="text-[11px] font-semibold tracking-[0.16em] uppercase text-gold">
-                Kota · Hostels and PGs
-              </p>
+      <section className="relative overflow-hidden" aria-labelledby="hero-heading">
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1920&q=80"
+            alt=""
+            className="w-full h-full object-cover object-center"
+            width={1920}
+            height={1080}
+            fetchPriority="high"
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(105deg, rgba(3,37,57,0.90) 0%, rgba(7,59,85,0.82) 42%, rgba(5,45,67,0.72) 100%)',
+            }}
+            aria-hidden
+          />
+        </div>
+
+        <div className="relative max-w-[90rem] mx-auto px-4 sm:px-8 lg:px-12 pt-10 pb-20 sm:pt-14 sm:pb-24 lg:min-h-[42rem] lg:flex lg:items-center">
+          <div className="grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] gap-10 lg:gap-12 items-center w-full">
+            <div className="min-w-0">
+              <span className="inline-flex items-center px-3.5 py-1.5 rounded-full border border-[#F5A91F]/70 text-[#F5A91F] text-[11px] sm:text-[13px] font-semibold tracking-[0.16em] uppercase">
+                10+ Locations in Kota
+              </span>
+
               <h1
                 id="hero-heading"
-                className="mt-4 font-display text-[2rem] sm:text-5xl lg:text-[3.4rem] font-semibold leading-[1.08] tracking-tight text-white"
+                className="mt-5 font-display font-semibold text-white tracking-tight"
+                style={{
+                  fontSize: 'clamp(2.5rem, 6.5vw, 5.75rem)',
+                  lineHeight: 0.94,
+                }}
               >
-                Find your{' '}
-                <em className="not-italic text-gold italic font-semibold">stay</em>
-                <br className="hidden sm:block" />
-                {' '}in Kota.
+                <span className="block">Luxury That</span>
+                <span className="relative inline-block italic text-[#F5A91F] font-semibold">
+                  Feels
+                  <svg
+                    className="absolute left-0 -bottom-1 w-full h-3 text-[#F5A91F]"
+                    viewBox="0 0 200 12"
+                    fill="none"
+                    aria-hidden
+                    preserveAspectRatio="none"
+                  >
+                    <path
+                      d="M2 8c40-6 80-6 120 0s60 6 76 1"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </span>{' '}
+                <span className="not-italic">Like</span>
+                <span className="block">Home</span>
               </h1>
-              <p className="mt-5 max-w-md text-[15px] sm:text-base leading-7 text-white/75">
-                Discover hostels and PGs near coaching hubs. Filter by locality, budget and sharing, then request a visit.
+
+              <p className="mt-6 max-w-xl text-[15px] sm:text-[19px] leading-relaxed text-[#D6E0E7]">
+                Premium student accommodation in Kota — fully furnished, all-inclusive living with
+                home-cooked meals, modern amenities, and a community that cares.
               </p>
 
               <form
                 onSubmit={handleSearch}
-                className="mt-8 bg-white rounded-xl p-3 shadow-card"
+                className="mt-8 bg-white rounded-2xl p-3.5 sm:p-4 shadow-[0_16px_40px_rgba(0,0,0,0.22)] border border-white/40"
               >
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 min-w-0">
                   <label className="block">
@@ -60,7 +101,7 @@ export function HomePage() {
                       <select
                         value={locality}
                         onChange={(e) => setLocality(e.target.value)}
-                        className="w-full h-11 pl-9 pr-2 rounded-lg text-sm text-navy bg-mist border border-transparent focus:outline-none focus:ring-2 focus:ring-navy"
+                        className="w-full h-12 pl-9 pr-2 rounded-xl text-[15px] text-navy bg-[#F4F6F7] border border-transparent focus:outline-none focus:ring-2 focus:ring-navy"
                       >
                         <option value="">Locality</option>
                         {LOCALITIES.map((l) => (
@@ -76,9 +117,9 @@ export function HomePage() {
                       <select
                         value={maxBudget}
                         onChange={(e) => setMaxBudget(e.target.value)}
-                        className="w-full h-11 pl-9 pr-2 rounded-lg text-sm text-navy bg-mist border border-transparent focus:outline-none focus:ring-2 focus:ring-navy"
+                        className="w-full h-12 pl-9 pr-2 rounded-xl text-[15px] text-navy bg-[#F4F6F7] border border-transparent focus:outline-none focus:ring-2 focus:ring-navy"
                       >
-                        <option value="">Budget</option>
+                        <option value="">Monthly budget</option>
                         <option value="5000">Under ₹5,000</option>
                         <option value="8000">Under ₹8,000</option>
                         <option value="12000">Under ₹12,000</option>
@@ -92,9 +133,9 @@ export function HomePage() {
                       <select
                         value={sharing}
                         onChange={(e) => setSharing(e.target.value as SharingType | '')}
-                        className="w-full h-11 pl-9 pr-2 rounded-lg text-sm text-navy bg-mist border border-transparent focus:outline-none focus:ring-2 focus:ring-navy"
+                        className="w-full h-12 pl-9 pr-2 rounded-xl text-[15px] text-navy bg-[#F4F6F7] border border-transparent focus:outline-none focus:ring-2 focus:ring-navy"
                       >
-                        <option value="">Sharing</option>
+                        <option value="">Sharing type</option>
                         <option value="single">Single</option>
                         <option value="double">Double</option>
                         <option value="triple">Triple</option>
@@ -102,42 +143,56 @@ export function HomePage() {
                     </span>
                   </label>
                 </div>
-                <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-2">
+                <div className="mt-3 flex flex-col sm:flex-row gap-2">
                   <button
                     type="submit"
-                    className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-pill bg-navy hover:bg-blue text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navy"
+                    className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-full bg-[#073B55] hover:bg-[#0a4d6e] text-white text-[15px] font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navy"
                   >
                     <Search className="w-4 h-4" />
                     Explore Hostels
                   </button>
                   <Link
                     to="/login?role=owner"
-                    className="inline-flex items-center justify-center h-11 px-3 text-sm font-medium text-navy/80 hover:text-navy underline-offset-4 hover:underline"
+                    className="inline-flex items-center justify-center gap-2 h-12 px-5 rounded-full border border-[#073B55]/25 text-[#073B55] text-[15px] font-semibold hover:bg-[#F4F6F7]"
                   >
-                    List your property
+                    <Home className="w-4 h-4" />
+                    List Your Property
                   </Link>
                 </div>
               </form>
             </div>
 
             <div className="relative flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-md">
-                <div className="absolute -inset-3 rounded-card bg-gold/15 blur-sm" aria-hidden />
-                <div className="relative rounded-card overflow-hidden shadow-card border border-white/10 sm:rotate-2 motion-safe:sm:hover:rotate-0 transition-transform duration-500 ease-out">
-                  <img
-                    src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900&q=80"
-                    alt="Student room in a Kota hostel"
-                    className="w-full aspect-[4/3] sm:aspect-[4/5] object-cover"
-                    width={900}
-                    height={1125}
-                  />
-                  <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-navy/80 to-transparent">
-                    <p className="text-xs text-white/90">Demo room photo · listings from StayKota catalogue</p>
+              <div className="relative w-full max-w-[22rem] sm:max-w-[28rem] lg:max-w-[32rem]">
+                <div className="relative rounded-[1.35rem] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.35)] border border-white/20 bg-white rotate-0 sm:rotate-[2.5deg] motion-safe:sm:hover:rotate-0 transition-transform duration-500 ease-out">
+                  <div className="relative">
+                    <img
+                      src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1200&q=80"
+                      alt="Warm student hostel bedroom"
+                      className="w-full aspect-[4/5] object-cover object-center"
+                      width={900}
+                      height={1125}
+                    />
+                    <span className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F5A91F] text-[#073B55] text-sm font-semibold shadow-md">
+                      <Star className="w-3.5 h-3.5 fill-current" aria-hidden />
+                      4.8 Rating
+                    </span>
+                  </div>
+                  <div className="bg-white px-5 py-4">
+                    <p className="font-display text-lg sm:text-xl font-semibold text-[#073B55]">
+                      The StayKota Experience
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 leading-[0]" aria-hidden>
+          <svg viewBox="0 0 1440 80" className="w-full h-12 sm:h-16 text-[#F7F8F7]" preserveAspectRatio="none">
+            <path fill="currentColor" d="M0,48 C240,80 480,0 720,32 C960,64 1200,80 1440,24 L1440,80 L0,80 Z" />
+          </svg>
         </div>
       </section>
 
