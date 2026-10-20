@@ -35,6 +35,7 @@ export function HostelDetailPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const hostel = hostels.find(h => h.id === id && h.status === 'approved');
   const resumeApplied = useRef(false);
+  const listedHostelId = useRef<string | null>(null);
 
   const [selectedRoom, setSelectedRoom] = useState<RoomType | null>(null);
   const [visitDate, setVisitDate] = useState('');
@@ -47,7 +48,13 @@ export function HostelDetailPage() {
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
   useEffect(() => {
-    if (!hostel || resumeApplied.current) return;
+    if (!hostel) return;
+    if (listedHostelId.current !== hostel.id) {
+      listedHostelId.current = hostel.id;
+      resumeApplied.current = false;
+      setStep('idle');
+    }
+    if (resumeApplied.current) return;
     const available = hostel.roomTypes.filter(r => r.available);
     const roomId = searchParams.get('room');
     const resume = searchParams.get('resumeVisit') === '1';

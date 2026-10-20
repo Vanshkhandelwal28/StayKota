@@ -80,3 +80,16 @@ Added on this same branch, without restyling page sections:
 - Reusable utilities: `font-display`, `bg-navy`, `bg-paper`, `text-ink`, `text-gold`, `rounded-card`, `rounded-pill`, `shadow-card`, `max-w-page`.
 - Listing photos stay the existing Unsplash URLs in `src/data/mockData.ts` (hostel and room photos, `w=800`). No new image files and no invented property data.
 - Primary buttons still use their existing teal classes. Those get the new palette when the landing sections are redesigned, so dashboards do not change in this phase.
+
+## Phase 10 audit
+
+Checked on `docs/phase-1-baseline` after Phases 2–9. No new product features in this phase.
+
+- `npm run build` passes.
+- `npm run typecheck` still fails only on the pre-existing `erasableSyntaxOnly` option in `tsconfig.node.json` (`TS5023`). Left unchanged.
+- No browser pass at phone, tablet, and desktop widths was run in this environment.
+- The reference video was still not available, so the visual work follows the written brief.
+- Login is still the demo client lookup. Visits still save only in `localStorage`. A visit is still not a booking.
+- One regression from Phase 7: moving from one `/hostel/:id` to another reused the previous room selection because a ref blocked the effect. The effect now resets when the hostel id changes.
+- Not in this branch: pull requests #2 and #3. Merging those with this branch will conflict.
+
