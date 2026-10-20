@@ -42,10 +42,10 @@ export function HostelCard({ hostel }: HostelCardProps) {
   return (
     <Link
       to={`/hostel/${hostel.id}`}
-      className="block group h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#073B55] focus-visible:ring-offset-2 rounded-[1.35rem]"
+      className="block group h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#073B55] focus-visible:ring-offset-2 rounded-[1.25rem]"
     >
-      <article className="bg-white rounded-[1.35rem] border border-[#E1E7EA] overflow-hidden shadow-[0_8px_28px_rgba(7,59,85,0.06)] hover:shadow-[0_14px_36px_rgba(7,59,85,0.12)] hover:-translate-y-1 transition-[box-shadow,transform] duration-300 h-full flex flex-col motion-reduce:transform-none">
-        <div className="relative h-[15rem] sm:h-[17.5rem] overflow-hidden bg-[#F4F6F7]">
+      <article className="bg-white rounded-[1.25rem] border border-[#E1E7EA] overflow-hidden shadow-[0_6px_22px_rgba(7,59,85,0.06)] hover:shadow-[0_12px_32px_rgba(7,59,85,0.11)] hover:-translate-y-0.5 transition-[box-shadow,transform] duration-300 h-full flex flex-col motion-reduce:transform-none">
+        <div className="relative aspect-[16/10] overflow-hidden bg-[#F4F6F7]">
           <img
             src={hostel.coverImage}
             alt={hostel.name}
@@ -78,21 +78,21 @@ export function HostelCard({ hostel }: HostelCardProps) {
           )}
         </div>
 
-        <div className="p-5 flex flex-col flex-1">
-          <h3 className="font-display text-[1.35rem] sm:text-[1.5rem] font-semibold text-[#073B55] leading-snug break-words">
+        <div className="px-4 pt-3.5 pb-4 flex flex-col flex-1">
+          <h3 className="font-display text-[1.2rem] sm:text-[1.3rem] font-semibold text-[#073B55] leading-snug break-words">
             {hostel.name}
           </h3>
-          <div className="flex items-center gap-1.5 mt-1.5 text-[15px] text-[#607386]">
+          <div className="flex items-center gap-1.5 mt-1 text-[14px] text-[#607386]">
             <MapPin className="w-3.5 h-3.5 text-[#F5A91F] shrink-0" aria-hidden />
             <span>{hostel.locality}, Kota</span>
           </div>
 
           {amenityChips.length > 0 && (
-            <div className="mt-3.5 flex flex-wrap gap-1.5">
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
               {amenityChips.slice(0, 4).map((t) => (
                 <span
                   key={t.key}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#F0F4F7] text-[12px] text-[#176A96] border border-[#E1E7EA]"
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F0F4F7] text-[11px] text-[#176A96] border border-[#E1E7EA]"
                 >
                   {t.icon}
                   {t.label}
@@ -101,14 +101,14 @@ export function HostelCard({ hostel }: HostelCardProps) {
             </div>
           )}
 
-          <div className="mt-auto pt-5 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-baseline gap-1">
-              <span className="text-[1.35rem] sm:text-[1.5rem] font-semibold text-[#073B55] tracking-tight">
+          <div className="mt-auto pt-3.5 flex items-center justify-between gap-2">
+            <div className="flex items-baseline gap-1 min-w-0">
+              <span className="text-[1.2rem] sm:text-[1.3rem] font-semibold text-[#073B55] tracking-tight">
                 ₹{minRent.toLocaleString('en-IN')}
               </span>
-              <span className="text-[13px] text-[#607386]">/ month from</span>
+              <span className="text-[12px] text-[#607386] whitespace-nowrap">/ month from</span>
             </div>
-            <span className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full border border-[#073B55]/20 text-[13px] font-semibold text-[#073B55] group-hover:bg-[#073B55] group-hover:text-white group-hover:border-[#073B55] transition-colors">
+            <span className="inline-flex items-center gap-1 h-8 px-3 rounded-full border border-[#073B55]/20 text-[12px] font-semibold text-[#073B55] shrink-0 group-hover:bg-[#073B55] group-hover:text-white group-hover:border-[#073B55] transition-colors">
               View details
               <ArrowRight className="w-3.5 h-3.5" aria-hidden />
             </span>
