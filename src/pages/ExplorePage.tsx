@@ -1,8 +1,9 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Check, List, Map } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { HostelCard } from '../components/hostel/HostelCard';
+import { DiscoveryMap } from '../components/map/DiscoveryMap';
 import { LOCALITIES } from '../data/mockData';
 import { Button } from '../components/ui/Button';
 import type { SharingType } from '../types';
@@ -31,6 +32,7 @@ export function ExplorePage() {
   const [page, setPage] = useState(1);
   const [mobileFilters, setMobileFilters] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [view, setView] = useState<'list' | 'map'>('list');
 
   useEffect(() => {
     const l = searchParams.get('locality');
@@ -236,6 +238,24 @@ export function ExplorePage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
               <h1 className="text-lg font-semibold text-slate-900">{resultLabel}</h1>
               <div className="flex items-center gap-2">
+                <div className="inline-flex p-0.5 rounded-full border border-[#E1E7EA] bg-white" role="group" aria-label="Results layout">
+                  <button
+                    type="button"
+                    onClick={() => setView('list')}
+                    aria-pressed={view === 'list'}
+                    className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-[#073B55] ${view === 'list' ? 'bg-[#073B55] text-white' : 'text-[#073B55]'}`}
+                  >
+                    <List className="w-3.5 h-3.5" aria-hidden /> List
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setView('map')}
+                    aria-pressed={view === 'map'}
+                    className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-[#073B55] ${view === 'map' ? 'bg-[#073B55] text-white' : 'text-[#073B55]'}`}
+                  >
+                    <Map className="w-3.5 h-3.5" aria-hidden /> Map
+                  </button>
+                </div>
                 <span className="text-sm text-slate-500">Sort:</span>
                 <select value={sort} onChange={e => { setSort(e.target.value as SortKey); setPage(1); }} className="px-3 py-1.5 rounded-lg border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
                   <option value="rent-asc">Rent: Low to High</option>
@@ -245,7 +265,9 @@ export function ExplorePage() {
               </div>
             </div>
 
-            {loading ? (
+            {view === 'map' ? (
+              <DiscoveryMap hostels={filtered} onShowList={() => setView('list')} />
+            ) : loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div key={i} className="bg-white rounded-2xl border border-slate-100 overflow-hidden animate-pulse">
