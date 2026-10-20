@@ -87,3 +87,34 @@
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
+@keyframes leafSwayA {
+  0%, 100% { transform: rotate(-4deg) translateY(0); }
+  50% { transform: rotate(5deg) translateY(-6px); }
+}
+@keyframes leafSwayB {
+  0%, 100% { transform: rotate(3deg) translateY(0); }
+  50% { transform: rotate(-6deg) translateY(5px); }
+}
+@keyframes leafSwayC {
+  0%, 100% { transform: rotate(-2deg) translateX(0); }
+  50% { transform: rotate(4deg) translateX(4px); }
+}
+.leaf-sway-a {
+  transform-origin: 50% 90%;
+  animation: leafSwayA 7s ease-in-out infinite;
+}
+.leaf-sway-b {
+  transform-origin: 40% 95%;
+  animation: leafSwayB 8.5s ease-in-out infinite;
+}
+.leaf-sway-c {
+  transform-origin: 55% 92%;
+  animation: leafSwayC 9s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .leaf-sway-a,
+  .leaf-sway-b,
+  .leaf-sway-c {
+    animation: none;
+  }
+}
