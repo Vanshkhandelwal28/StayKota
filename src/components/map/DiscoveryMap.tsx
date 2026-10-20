@@ -5,6 +5,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { LocateFixed, MapPin } from 'lucide-react';
 import type { Hostel } from '../../types';
+import { COACHING_CAMPUSES } from '../../data/coachingCampuses';
 import { KOTA_VIEW, MAP_TILE_ATTRIBUTION, MAP_TILE_URL } from '../../config/map';
 import {
   formatStraightLine,
@@ -25,6 +26,14 @@ function pinIcon(selected: boolean) {
     popupAnchor: [0, -28],
   });
 }
+
+const coachIcon = L.divIcon({
+  className: 'staykota-pin',
+  html: '<span class="staykota-coach-dot"></span>',
+  iconSize: [28, 28],
+  iconAnchor: [14, 14],
+  popupAnchor: [0, -12],
+});
 
 const userIcon = L.divIcon({
   className: 'staykota-pin',
@@ -91,6 +100,7 @@ export function DiscoveryMap({ hostels, onShowList }: DiscoveryMapProps) {
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [geoError, setGeoError] = useState<GeoError | null>(null);
   const [locating, setLocating] = useState(false);
+  const [showCoaching, setShowCoaching] = useState(false);
 
   const mapped = useMemo(
     () =>
@@ -139,6 +149,18 @@ export function DiscoveryMap({ hostels, onShowList }: DiscoveryMapProps) {
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
+            onClick={() => setShowCoaching((v) => !v)}
+            aria-pressed={showCoaching}
+            className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-full border text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-[#073B55] ${
+              showCoaching
+                ? 'border-[#073B55] bg-[#073B55] text-white'
+                : 'border-[#073B55]/20 bg-white text-[#073B55] hover:bg-[#F4F8F8]'
+            }`}
+          >
+            {showCoaching ? 'Hide coaching' : 'Show coaching'}
+          </button>
+          <button
+            type="button"
             onClick={locate}
             disabled={locating}
             className="inline-flex items-center gap-1.5 h-9 px-3 rounded-full border border-[#073B55]/20 bg-white text-sm font-semibold text-[#073B55] hover:bg-[#F4F8F8] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#073B55] disabled:opacity-60"
@@ -174,7 +196,7 @@ export function DiscoveryMap({ hostels, onShowList }: DiscoveryMapProps) {
           </div>
         )}
         {mapped.length === 0 && ready && (
-          <div className="absolute bottom-4 left-3 right-3 z-[6] rounded-xl bg-white/95 border border-[#E1E7EA] px-3 py-2 text-sm text-[#073B55] shadow-sm">
+          <div className="absolute bottom-16 left-3 right-3 z-[6] rounded-xl bg-white/95 border border-[#E1E7EA] px-3 py-2 text-sm text-[#073B55] shadow-sm">
             <span className="inline-flex items-start gap-2">
               <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-[#E7B43B]" aria-hidden />
               <span>
@@ -230,6 +252,9 @@ export function DiscoveryMap({ hostels, onShowList }: DiscoveryMapProps) {
                       }}
                     />
                     <p className="mt-2 font-semibold leading-snug">{hostel.name}</p>
+                    {hostel.isDemo && (
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-[#176A96]">Demo listing</p>
+                    )}
                     {hostel.locality ? (
                       <p className="text-xs text-[#506474]">{hostel.locality}, Kota</p>
                     ) : (
@@ -262,7 +287,39 @@ export function DiscoveryMap({ hostels, onShowList }: DiscoveryMapProps) {
               </Marker>
             );
           })}
+          {showCoaching &&
+            COACHING_CAMPUSES.flatMap((campus) => {
+              const coords = toCoordinates(campus.latitude, campus.longitude);
+              if (!coords) return [];
+              return [
+                <Marker key={campus.id} position={[coords.lat, coords.lng]} icon={coachIcon}>
+                  <Popup>
+                    <div className="w-52 text-[#073B55]">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-[#176A96]">Coaching</p>
+                      <p className="font-semibold leading-snug">{campus.name}</p>
+                      {campus.campusName && (
+                        <p className="text-xs text-[#506474]">{campus.campusName}</p>
+                      )}
+                      <p className="text-xs text-[#506474]">{campus.locality}, Kota</p>
+                      <p className="text-[11px] text-[#506474] mt-1">{campus.note}</p>
+                    </div>
+                  </Popup>
+                </Marker>,
+              ];
+            })}
         </MapContainer>
+        <div className="absolute bottom-3 left-3 z-[6] flex flex-wrap gap-2 pointer-events-none">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 border border-[#E1E7EA] px-2.5 py-1 text-[11px] font-medium text-[#073B55] shadow-sm">
+            <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#073B55]" aria-hidden />
+            Hostel
+          </span>
+          {showCoaching && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 border border-[#E1E7EA] px-2.5 py-1 text-[11px] font-medium text-[#073B55] shadow-sm">
+              <span className="inline-block w-2.5 h-2.5 rounded-sm bg-[#E7B43B] border border-[#073B55]" aria-hidden />
+              Coaching
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
