@@ -8,9 +8,13 @@ import type { CoachingCampus } from '../types';
  * - ALLEN campus street addresses from allen.ac.in contact pages
  * - OpenStreetMap named features: Allen Saakar, Vibrant Academy, Nucleus Education
  * - Motion / Resonance / PW / Career Point addresses from institute contact pages
+ * - Sarthi (NEET Sarthi) Mahaveer Nagar address from public listings
  *
  * Pins marked approximate are offsets near those landmarks, not surveyed buildings.
- * Unacademy is omitted — an active Kota classroom was not confirmed.
+ * Unacademy is omitted — an active Kota classroom was not confirmed for a stable pin.
+ *
+ * Distance from a hostel to a campus is not computed on the map yet; coordinates
+ * and brands are structured so that feature can be added next without a redesign.
  */
 export const COACHING_CAMPUSES: CoachingCampus[] = [
   {
@@ -220,5 +224,18 @@ export const COACHING_CAMPUSES: CoachingCampus[] = [
     website: 'https://www.nucleuseducation.in',
     locationAccuracy: 'osm',
     note: 'OpenStreetMap feature named Nucleus Education on Road 1.',
+  },
+  {
+    id: 'sarthi-mahaveer',
+    name: 'NEET Sarthi Academy',
+    brand: 'Sarthi',
+    campusName: 'Mahaveer Nagar',
+    locality: 'Mahaveer Nagar',
+    address: '5-K-3, Parijat Colony, Mahaveer Nagar Housing Board Colony, Kota 324005',
+    latitude: 25.1368,
+    longitude: 75.8315,
+    website: 'https://www.neetsarthi.com',
+    locationAccuracy: 'approximate',
+    note: 'Approximate pin near the published Mahaveer Nagar / Parijat Colony address. Not a surveyed building.',
   },
 ];
