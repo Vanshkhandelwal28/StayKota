@@ -1,24 +1,23 @@
 /**
  * Tile layers for hostel + coaching maps.
  *
- * Default street: Esri World Light Gray Canvas — free for reasonable use,
- * clean (few POI icons), no API key. Students mainly see our hostel +
- * coaching pins.
+ * Street (default): OpenStreetMap — free, no API key, works at high zoom
+ * in Kota (no "Map data not yet available").
  *
- * Satellite: Esri World Imagery (also free for reasonable use).
+ * Satellite: Esri World Imagery — free for reasonable use, shows buildings
+ * and roofs similar to Google satellite (not Google itself).
  *
- * CARTO was dropped as default because their basemap CDN now returns
- * "API KEY REQUIRED" without a valid key.
+ * Esri Light Gray was dropped for street: it blanks out past ~zoom 16 in Kota.
  */
 
-/** Clean light basemap. No API key. Note Esri uses {z}/{y}/{x} order. */
+/** Street basemap. Free, no key. Full zoom coverage for Kota. */
 export const MAP_TILE_URL =
-  'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
 export const MAP_TILE_ATTRIBUTION =
-  'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, FAO, NOAA, USGS';
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
-/** Satellite imagery (no key). */
+/** Satellite imagery (no key). Esri uses {z}/{y}/{x} order. */
 export const MAP_SATELLITE_URL =
   'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 
@@ -28,7 +27,6 @@ export const MAP_SATELLITE_ATTRIBUTION =
 /**
  * Kota core + ~5 km buffer.
  * Leaflet maxBounds: [[south, west], [north, east]]
- * Students cannot pan far outside this area.
  */
 export const KOTA_MAX_BOUNDS: [[number, number], [number, number]] = [
   [25.1, 75.76],
