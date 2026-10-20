@@ -9,12 +9,20 @@ type AuthStep = 'phone' | 'otp' | 'loading' | 'success';
 
 const DEMO_OTP = '4242'; // clearly labelled demo code
 
+function safeInternalPath(value: string | null): string {
+  if (!value || !value.startsWith('/') || value.startsWith('//') || value.includes('\\') || value.includes('://')) {
+    return '/';
+  }
+  return value;
+}
+
 export function LoginPage() {
   const { login, user } = useApp();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const preferredRole = (searchParams.get('role') as UserRole) || 'student';
-  const redirect = searchParams.get('redirect') || '/';
+  const redirect = safeInternalPath(searchParams.get('redirect'));
+  const continuingVisit = redirect.includes('resumeVisit=1');
   const showAdmin = searchParams.get('admin') === '1' || preferredRole === 'admin';
 
   const [role, setRole] = useState<UserRole>(
@@ -106,7 +114,7 @@ export function LoginPage() {
       setTimeout(() => {
         if (role === 'owner') navigate('/owner');
         else if (role === 'admin') navigate('/admin');
-        else navigate(redirect || '/');
+        else navigate(redirect);
       }, 600);
     }, 500);
   };
@@ -131,7 +139,7 @@ export function LoginPage() {
       setTimeout(() => {
         if (role === 'owner') navigate('/owner');
         else if (role === 'admin') navigate('/admin');
-        else navigate(redirect || '/');
+        else navigate(redirect);
       }, 500);
     }, 600);
   };
@@ -141,7 +149,9 @@ export function LoginPage() {
       ? 'Log in to manage listings and visit requests.'
       : role === 'admin'
         ? 'Admin access is restricted. Demo login only.'
-        : 'Log in to save hostels and track visit requests.';
+        : continuingVisit
+          ? 'Log in as a student to continue this visit request. You will return to the listing.'
+          : 'Log in to save hostels and track visit requests.';
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-[#faf8f5] flex items-center justify-center px-4 py-10 animate-fade-in">

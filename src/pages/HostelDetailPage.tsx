@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   MapPin, Heart, Share2, Check, Calendar, Phone,
   Shield, Wifi, Wind, Utensils, Droplets, X, ChevronLeft, ChevronRight,
@@ -32,7 +32,9 @@ export function HostelDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { hostels, user, toggleFavourite, isFavourite, scheduleVisit } = useApp();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const hostel = hostels.find(h => h.id === id && h.status === 'approved');
+  const resumeApplied = useRef(false);
 
   const [selectedRoom, setSelectedRoom] = useState<RoomType | null>(null);
   const [visitDate, setVisitDate] = useState('');
@@ -45,13 +47,27 @@ export function HostelDetailPage() {
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
   useEffect(() => {
-    if (!hostel) return;
+    if (!hostel || resumeApplied.current) return;
     const available = hostel.roomTypes.filter(r => r.available);
-    if (available.length === 0) return;
-    const sorted = [...available].sort((a, b) => a.rent - b.rent);
-    const double = sorted.find(r => r.sharingType === 'double');
-    setSelectedRoom(double || sorted[0]);
-  }, [hostel]);
+    const roomId = searchParams.get('room');
+    const resume = searchParams.get('resumeVisit') === '1';
+    const fromQuery = roomId ? available.find(r => r.id === roomId) : undefined;
+    if (fromQuery) setSelectedRoom(fromQuery);
+    else if (available.length > 0) {
+      const sorted = [...available].sort((a, b) => a.rent - b.rent);
+      const double = sorted.find(r => r.sharingType === 'double');
+      setSelectedRoom(double || sorted[0]);
+    }
+    if (resume && user?.role !== 'student') return;
+    if (resume && user?.role === 'student') setStep('date');
+    if (resume || roomId) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('resumeVisit');
+      next.delete('room');
+      setSearchParams(next, { replace: true });
+    }
+    resumeApplied.current = true;
+  }, [hostel, user, searchParams, setSearchParams]);
 
   if (!hostel) {
     return (
@@ -94,7 +110,8 @@ export function HostelDetailPage() {
   const startVisitFlow = () => {
     setError('');
     if (!user || user.role !== 'student') {
-      navigate(`/login?role=student&redirect=${encodeURIComponent(`/hostel/${id}`)}`);
+      const next = `/hostel/${id}?resumeVisit=1${selectedRoom ? `&room=${encodeURIComponent(selectedRoom.id)}` : ''}`;
+      navigate(`/login?role=student&redirect=${encodeURIComponent(next)}`);
       return;
     }
     setStep('date');
