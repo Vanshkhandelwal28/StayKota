@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, MapPin, IndianRupee, Users, FileText, Phone, GraduationCap, ArrowRight, Check, BookOpen, Home, Star } from 'lucide-react';
+import { Search, MapPin, IndianRupee, Users, FileText, Phone, GraduationCap, ArrowRight, BookOpen, Home, Star, Calendar, Eye } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { HostelCard } from '../components/hostel/HostelCard';
+import { LeafDecor } from '../components/LeafDecor';
 import { LOCALITIES } from '../data/mockData';
 import type { SharingType } from '../types';
 
@@ -299,72 +300,163 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="max-w-page mx-auto px-4 sm:px-6 lg:px-8 py-12" aria-labelledby="benefits-heading">
-        <h2 id="benefits-heading" className="font-display text-3xl sm:text-4xl font-semibold text-navy">
-          What you can check before a visit
-        </h2>
-        <p className="mt-2 max-w-xl text-sm leading-6 text-ink">
-          StayKota is for students looking at hostels and PGs in Kota. Listings show only what the owner entered.
-        </p>
-        <div className="mt-6 grid sm:grid-cols-3 gap-4">
-          {[
-            { icon: <FileText className="w-5 h-5" />, title: 'Rent shown in parts', desc: 'Monthly rent, deposit and extra charges appear separately when the listing includes them.' },
-            { icon: <Phone className="w-5 h-5" />, title: 'Visit request', desc: 'Pick a date on the listing. The owner follows up to confirm a time.' },
-            { icon: <GraduationCap className="w-5 h-5" />, title: 'Student filters', desc: 'Narrow results by locality, budget and room sharing.' },
-          ].map((item) => (
-            <article key={item.title} className="bg-white rounded-card border border-navy/10 shadow-card overflow-hidden">
-              <div
-                className="h-2 bg-[repeating-linear-gradient(90deg,#073b55_0_10px,#e7b43b_10px_14px,#176a96_14px_22px)]"
-                aria-hidden
-              />
-              <div className="p-5">
-                <div className="w-10 h-10 rounded-lg bg-mist text-navy flex items-center justify-center mb-4">{item.icon}</div>
-                <h3 className="font-semibold text-navy">{item.title}</h3>
-                <p className="mt-1.5 text-sm leading-6 text-ink">{item.desc}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      <section
+        className="relative bg-[#F8F7F2] overflow-hidden"
+        aria-label="StayKota information"
+      >
+        <LeafDecor />
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 w-2/5 max-w-md opacity-[0.18] hidden lg:block"
+          aria-hidden
+          style={{
+            backgroundImage:
+              'url(https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=50)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center right',
+            maskImage: 'linear-gradient(to left, black 20%, transparent 95%)',
+            WebkitMaskImage: 'linear-gradient(to left, black 20%, transparent 95%)',
+          }}
+        />
 
-      <section className="max-w-page mx-auto px-4 sm:px-6 lg:px-8 pb-4" aria-labelledby="living-heading">
-        <h2 id="living-heading" className="font-display text-3xl sm:text-4xl font-semibold text-navy">
-          Practical notes for Kota
-        </h2>
-        <div className="mt-6 grid md:grid-cols-3 gap-4">
-          {[
-            { icon: <BookOpen className="w-5 h-5" />, title: 'Near coaching areas', desc: 'Popular chips jump to Talwandi, Landmark and other localities already in the catalogue.' },
-            { icon: <GraduationCap className="w-5 h-5" />, title: 'Sharing that fits study hours', desc: 'Single, double and triple options are filters, not a promise that every hostel has each type.' },
-            { icon: <MapPin className="w-5 h-5" />, title: 'See the room first', desc: 'A visit request is not a booking and does not reserve a bed.' },
-          ].map((item) => (
-            <article key={item.title} className="rounded-card bg-mist border border-navy/10 p-5">
-              <div className="w-10 h-10 rounded-full bg-white text-navy flex items-center justify-center mb-4 border border-navy/10">{item.icon}</div>
-              <h3 className="font-semibold text-navy">{item.title}</h3>
-              <p className="mt-1.5 text-sm leading-6 text-ink">{item.desc}</p>
-            </article>
-          ))}
+        <div className="relative max-w-page mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-6" aria-labelledby="benefits-heading">
+          <p className="text-[12px] sm:text-[13px] font-semibold tracking-[0.16em] uppercase text-[#F5A91F]">
+            What you can do here
+          </p>
+          <h2
+            id="benefits-heading"
+            className="mt-2 font-display text-[1.85rem] sm:text-[2.25rem] lg:text-[2.5rem] font-semibold text-[#073B55] leading-tight"
+          >
+            What you can check before a visit
+          </h2>
+          <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-[#607386]">
+            StayKota is for students looking at hostels and PGs in Kota. Listings show only what the owner entered.
+          </p>
+          <div className="mt-8 grid sm:grid-cols-3 gap-4 lg:gap-5">
+            {[
+              {
+                icon: <FileText className="w-5 h-5" />,
+                title: 'Rent shown in parts',
+                desc: 'Monthly rent, deposit and extra charges appear separately when the listing includes them.',
+              },
+              {
+                icon: <Phone className="w-5 h-5" />,
+                title: 'Visit request',
+                desc: 'Pick a date on the listing. The owner follows up to confirm a time.',
+              },
+              {
+                icon: <GraduationCap className="w-5 h-5" />,
+                title: 'Student filters',
+                desc: 'Narrow results by locality, budget and room sharing.',
+              },
+            ].map((item) => (
+              <article
+                key={item.title}
+                className="bg-white rounded-2xl border border-[#E1E7EA] shadow-[0_6px_20px_rgba(7,59,85,0.05)] p-5 sm:p-6 hover:shadow-[0_10px_28px_rgba(7,59,85,0.09)] transition-shadow"
+              >
+                <div className="w-11 h-11 rounded-full bg-[#E8F1F6] text-[#176A96] flex items-center justify-center mb-4">
+                  {item.icon}
+                </div>
+                <h3 className="font-semibold text-[#073B55] text-[1.05rem]">{item.title}</h3>
+                <p className="mt-1.5 text-[14px] leading-relaxed text-[#607386]">{item.desc}</p>
+              </article>
+            ))}
+          </div>
         </div>
-      </section>
 
-      <section className="max-w-page mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-16" aria-labelledby="steps-heading">
-        <h2 id="steps-heading" className="font-display text-3xl sm:text-4xl font-semibold text-navy">How it works</h2>
-        <ol className="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-4 list-none">
-          {[
-            { num: '01', title: 'Search', desc: 'Filter by budget, locality and sharing.' },
-            { num: '02', title: 'Request a visit', desc: 'Choose a date. Time is arranged afterwards.' },
-            { num: '03', title: 'See the room', desc: 'Check the room, mess and washrooms in person.' },
-            { num: '04', title: 'Decide with the owner', desc: 'Rent and deposit stay between you and the property.' },
-          ].map((s) => (
-            <li key={s.num} className="bg-white rounded-card border border-navy/10 p-5">
-              <span className="font-display text-2xl text-gold font-semibold">{s.num}</span>
-              <div className="mt-3 w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center">
-                <Check className="w-4 h-4" aria-hidden />
-              </div>
-              <h3 className="mt-3 font-semibold text-navy text-sm">{s.title}</h3>
-              <p className="mt-1 text-sm leading-6 text-ink">{s.desc}</p>
-            </li>
-          ))}
-        </ol>
+        <div className="relative max-w-page mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-4" aria-labelledby="living-heading">
+          <h2
+            id="living-heading"
+            className="font-display text-[1.85rem] sm:text-[2.25rem] font-semibold text-[#073B55] leading-tight"
+          >
+            Practical notes for Kota
+          </h2>
+          <div className="mt-7 grid md:grid-cols-3 gap-4 lg:gap-5">
+            {[
+              {
+                icon: <BookOpen className="w-5 h-5" />,
+                title: 'Near coaching areas',
+                desc: 'Popular chips jump to Talwandi, Landmark and other localities already in the catalogue.',
+              },
+              {
+                icon: <GraduationCap className="w-5 h-5" />,
+                title: 'Sharing that fits study hours',
+                desc: 'Single, double and triple options are filters, not a promise that every hostel has each type.',
+              },
+              {
+                icon: <MapPin className="w-5 h-5" />,
+                title: 'See the room first',
+                desc: 'A visit request is not a booking and does not reserve a bed.',
+              },
+            ].map((item) => (
+              <article
+                key={item.title}
+                className="rounded-2xl bg-white/80 border border-[#E1E7EA] p-5 sm:p-6 shadow-[0_4px_16px_rgba(7,59,85,0.04)]"
+              >
+                <div className="w-11 h-11 rounded-full bg-[#E8F1F6] text-[#176A96] flex items-center justify-center mb-4">
+                  {item.icon}
+                </div>
+                <h3 className="font-semibold text-[#073B55] text-[1.05rem]">{item.title}</h3>
+                <p className="mt-1.5 text-[14px] leading-relaxed text-[#607386]">{item.desc}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative max-w-page mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-16" aria-labelledby="steps-heading">
+          <h2
+            id="steps-heading"
+            className="font-display text-[1.85rem] sm:text-[2.25rem] font-semibold text-[#073B55] leading-tight"
+          >
+            How it works
+          </h2>
+          <ol className="mt-7 grid sm:grid-cols-2 lg:grid-cols-4 gap-4 list-none relative">
+            {[
+              {
+                num: '01',
+                title: 'Search',
+                desc: 'Filter by budget, locality and sharing.',
+                icon: <Search className="w-4 h-4" />,
+              },
+              {
+                num: '02',
+                title: 'Request a visit',
+                desc: 'Choose a date. Time is arranged afterwards.',
+                icon: <Calendar className="w-4 h-4" />,
+              },
+              {
+                num: '03',
+                title: 'See the room',
+                desc: 'Check the room, mess and washrooms in person.',
+                icon: <Eye className="w-4 h-4" />,
+              },
+              {
+                num: '04',
+                title: 'Decide with the owner',
+                desc: 'Rent and deposit stay between you and the property.',
+                icon: <Home className="w-4 h-4" />,
+              },
+            ].map((s, i, arr) => (
+              <li key={s.num} className="relative">
+                <article className="bg-white rounded-2xl border border-[#E1E7EA] shadow-[0_6px_20px_rgba(7,59,85,0.05)] p-5 h-full">
+                  <span className="text-[11px] font-semibold tracking-wider text-[#F5A91F]">{s.num}</span>
+                  <div className="mt-2.5 w-9 h-9 rounded-full bg-[#073B55] text-white flex items-center justify-center">
+                    {s.icon}
+                  </div>
+                  <h3 className="mt-3.5 font-semibold text-[#073B55] text-[0.95rem]">{s.title}</h3>
+                  <p className="mt-1 text-[13px] leading-relaxed text-[#607386]">{s.desc}</p>
+                </article>
+                {i < arr.length - 1 && (
+                  <span
+                    className="hidden lg:flex absolute top-1/2 -right-3 z-10 w-6 h-6 items-center justify-center text-[#F5A91F]"
+                    aria-hidden
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                  </span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </div>
       </section>
 
       <section className="bg-navy text-white" aria-labelledby="close-heading">
