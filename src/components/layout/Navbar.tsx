@@ -95,20 +95,12 @@ export function Navbar() {
                 </div>
               </div>
             ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="inline-flex items-center h-9 px-4 text-sm font-medium text-navy border border-navy/20 rounded-pill hover:bg-mist focus:outline-none focus:ring-2 focus:ring-navy/30"
-                >
-                  Log in
-                </Link>
-                <Link
-                  to="/explore"
-                  className="inline-flex items-center h-9 px-4 text-sm font-medium text-white bg-navy rounded-pill hover:bg-blue focus:outline-none focus:ring-2 focus:ring-navy/40"
-                >
-                  Find a Hostel
-                </Link>
-              </>
+              <Link
+                to="/login"
+                className="inline-flex items-center h-9 px-4 text-sm font-medium text-white bg-navy rounded-pill hover:bg-blue focus:outline-none focus:ring-2 focus:ring-navy/40"
+              >
+                Log in
+              </Link>
             )}
           </div>
 
@@ -157,20 +149,13 @@ export function Navbar() {
               </button>
             </>
           ) : (
-            <div className="flex flex-col gap-2 pt-2">
+            <div className="pt-2">
               <Link
                 to="/login"
                 onClick={() => setMobileOpen(false)}
-                className="inline-flex items-center justify-center h-10 px-4 text-sm font-medium text-navy border border-navy/20 rounded-pill"
+                className="inline-flex items-center justify-center h-10 w-full px-4 text-sm font-medium text-white bg-navy rounded-pill"
               >
                 Log in
-              </Link>
-              <Link
-                to="/explore"
-                onClick={() => setMobileOpen(false)}
-                className="inline-flex items-center justify-center h-10 px-4 text-sm font-medium text-white bg-navy rounded-pill"
-              >
-                Find a Hostel
               </Link>
             </div>
           )}
