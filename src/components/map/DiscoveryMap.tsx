@@ -13,6 +13,8 @@ import {
   KOTA_VIEW,
   MAP_TILE_ATTRIBUTION,
   MAP_TILE_URL,
+  MAP_SATELLITE_URL,
+  MAP_SATELLITE_ATTRIBUTION,
 } from '../../config/map';
 import {
   formatStraightLine,
@@ -24,7 +26,7 @@ import {
 const FALLBACK_PHOTO =
   'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&q=70';
 
-/** Escape text for safe SVG / HTML attribute use. */
+/** Escape text for safe SVG text content. */
 function esc(s: string): string {
   return s
     .replace(/&/g, '&')
@@ -40,14 +42,13 @@ function esc(s: string): string {
 function circleBadgeHtml(label: string, kind: 'hostel' | 'coaching'): string {
   const short = label.length > 28 ? `${label.slice(0, 26)}…` : label;
   const ring = kind === 'coaching' ? '#E7B43B' : '#073B55';
-  const fill = kind === 'coaching' ? '#073B55' : '#073B55';
+  const fill = '#073B55';
   const textFill = '#FFFFFF';
   const top = esc(short.toUpperCase());
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="112" height="112" viewBox="0 0 112 112" aria-hidden="true">
   <defs>
     <path id="sk-top" d="M 16,56 A 40,40 0 0,1 96,56" fill="none"/>
-    <path id="sk-bot" d="M 96,56 A 40,40 0 0,1 16,56" fill="none"/>
   </defs>
   <circle cx="56" cy="56" r="48" fill="${fill}" stroke="${ring}" stroke-width="3"/>
   <circle cx="56" cy="56" r="10" fill="#FFFFFF"/>
@@ -146,6 +147,7 @@ function KotaBounds() {
 }
 
 type GeoError = 'denied' | 'unavailable' | 'timeout' | 'unsupported' | 'invalid';
+type BaseLayer = 'street' | 'satellite';
 
 const GEO_COPY: Record<GeoError, string> = {
   denied: 'Location access was denied. You can still browse by locality.',
@@ -169,6 +171,8 @@ export function DiscoveryMap({ hostels, onShowList }: DiscoveryMapProps) {
   const [locating, setLocating] = useState(false);
   /** Coaching pins on by default so students see hostels + top institutes together. */
   const [showCoaching, setShowCoaching] = useState(true);
+  /** Street = OSM roads/labels; Satellite = Esri imagery (buildings/roofs). */
+  const [baseLayer, setBaseLayer] = useState<BaseLayer>('street');
 
   const mapped = useMemo(
     () =>
@@ -178,6 +182,10 @@ export function DiscoveryMap({ hostels, onShowList }: DiscoveryMapProps) {
       }),
     [hostels],
   );
+
+  const tileUrl = baseLayer === 'satellite' ? MAP_SATELLITE_URL : MAP_TILE_URL;
+  const tileAttribution =
+    baseLayer === 'satellite' ? MAP_SATELLITE_ATTRIBUTION : MAP_TILE_ATTRIBUTION;
 
   const locate = () => {
     if (!navigator.geolocation) {
@@ -215,6 +223,38 @@ export function DiscoveryMap({ hostels, onShowList }: DiscoveryMapProps) {
             : `${mapped.length} mapped stay${mapped.length === 1 ? '' : 's'} · ${hostels.length - mapped.length} without a pin`}
         </p>
         <div className="flex flex-wrap gap-2">
+          <div className="inline-flex rounded-full border border-[#073B55]/20 bg-white p-0.5">
+            <button
+              type="button"
+              onClick={() => {
+                setBaseLayer('street');
+                setTileFailed(false);
+              }}
+              aria-pressed={baseLayer === 'street'}
+              className={`h-8 px-3 rounded-full text-xs font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-[#073B55] ${
+                baseLayer === 'street'
+                  ? 'bg-[#073B55] text-white'
+                  : 'text-[#073B55] hover:bg-[#F4F8F8]'
+              }`}
+            >
+              Map
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setBaseLayer('satellite');
+                setTileFailed(false);
+              }}
+              aria-pressed={baseLayer === 'satellite'}
+              className={`h-8 px-3 rounded-full text-xs font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-[#073B55] ${
+                baseLayer === 'satellite'
+                  ? 'bg-[#073B55] text-white'
+                  : 'text-[#073B55] hover:bg-[#F4F8F8]'
+              }`}
+            >
+              Satellite
+            </button>
+          </div>
           <button
             type="button"
             onClick={() => setShowCoaching((v) => !v)}
@@ -289,8 +329,10 @@ export function DiscoveryMap({ hostels, onShowList }: DiscoveryMapProps) {
           <KotaBounds />
           <FlyTo target={userLocation} />
           <TileLayer
-            attribution={MAP_TILE_ATTRIBUTION}
-            url={MAP_TILE_URL}
+            key={baseLayer}
+            attribution={tileAttribution}
+            url={tileUrl}
+            maxZoom={KOTA_MAX_ZOOM}
             eventHandlers={{ tileerror: () => setTileFailed(true) }}
           />
           {userLocation && (
@@ -423,7 +465,7 @@ export function DiscoveryMap({ hostels, onShowList }: DiscoveryMapProps) {
         </div>
       </div>
       <p className="text-xs text-[#506474]">
-        Map is limited to Kota and about 5 km around it. Hover a pin for the name ring; click for details.
+        Map is limited to Kota and about 5 km around it. Use Satellite to see buildings. Hover a pin for the name ring; click for details.
       </p>
     </div>
   );
