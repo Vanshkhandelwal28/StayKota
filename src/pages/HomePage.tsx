@@ -173,10 +173,12 @@ export function HomePage() {
       <section className="max-w-page mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex items-end justify-between mb-6">
           <div>
-            <p className="text-sm text-teal-600 font-medium mb-1">Handpicked for this admission season</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Featured hostels near coaching hubs</h2>
+            <p className="text-[11px] font-semibold tracking-[0.16em] uppercase text-gold">From the demo catalogue</p>
+            <h2 className="mt-1 font-display text-3xl sm:text-4xl font-semibold text-navy">Hostels near coaching areas</h2>
           </div>
-          <Link to="/explore" className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-teal-700">View all stays <ArrowRight className="w-4 h-4" /></Link>
+          <Link to="/explore" className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-navy">
+            View all stays <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {featured.map((h, i) => (

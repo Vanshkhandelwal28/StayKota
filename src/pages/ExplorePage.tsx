@@ -130,7 +130,7 @@ export function ExplorePage() {
         <div className="space-y-2 max-h-48 overflow-y-auto">
           {LOCALITIES.map(l => (
             <label key={l} className="flex items-center gap-2.5 cursor-pointer group">
-              <span className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${localities.includes(l) ? 'bg-teal-600 border-teal-600 text-white' : 'border-slate-300 group-hover:border-teal-400'}`}>
+              <span className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${localities.includes(l) ? 'bg-navy border-navy text-white' : 'border-navy/25 group-hover:border-navy'}`}>
                 {localities.includes(l) && <Check className="w-3.5 h-3.5" />}
               </span>
               <input type="checkbox" className="sr-only" checked={localities.includes(l)} onChange={() => toggleLocality(l)} />
@@ -219,7 +219,7 @@ export function ExplorePage() {
             {hasFilters && (
               <div className="flex flex-wrap gap-2 mb-4">
                 {applied.localities.map(l => (
-                  <span key={l} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 text-teal-800 text-xs font-medium border border-teal-100">{l}</span>
+                  <span key={l} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-pill bg-mist text-navy text-xs font-medium border border-navy/15">{l}</span>
                 ))}
                 {(applied.minBudget > 0 || applied.maxBudget < 15000) && (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 text-teal-800 text-xs font-medium border border-teal-100">₹{applied.minBudget.toLocaleString()}–₹{applied.maxBudget.toLocaleString()}</span>
