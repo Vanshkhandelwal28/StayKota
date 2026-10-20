@@ -48,7 +48,13 @@ export function HostelDetailPage() {
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
   useEffect(() => {
-    if (!hostel) return;
+    if (user) return;
+    const target = id ? `/hostel/${id}${searchParams.toString() ? `?${searchParams.toString()}` : ''}` : '/';
+    navigate(`/login?role=student&redirect=${encodeURIComponent(target)}`, { replace: true });
+  }, [user, id, navigate, searchParams]);
+
+  useEffect(() => {
+    if (!user || !hostel) return;
     if (listedHostelId.current !== hostel.id) {
       listedHostelId.current = hostel.id;
       resumeApplied.current = false;
@@ -75,6 +81,21 @@ export function HostelDetailPage() {
     }
     resumeApplied.current = true;
   }, [hostel, user, searchParams, setSearchParams]);
+
+  if (!user) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-20 text-center animate-fade-in">
+        <h1 className="font-display text-2xl font-semibold text-navy">Sign in required</h1>
+        <p className="mt-2 text-ink text-sm">Create an account or log in as a student to view hostel details.</p>
+        <Link
+          to={`/login?role=student&redirect=${encodeURIComponent(id ? `/hostel/${id}` : '/')}`}
+          className="mt-6 inline-flex items-center justify-center h-10 px-5 rounded-pill bg-navy text-white text-sm font-medium"
+        >
+          Go to sign in
+        </Link>
+      </div>
+    );
+  }
 
   if (!hostel) {
     return (
