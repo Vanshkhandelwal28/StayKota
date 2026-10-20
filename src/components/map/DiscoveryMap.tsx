@@ -6,7 +6,14 @@ import 'leaflet/dist/leaflet.css';
 import { LocateFixed, MapPin } from 'lucide-react';
 import type { Hostel } from '../../types';
 import { COACHING_CAMPUSES } from '../../data/coachingCampuses';
-import { KOTA_VIEW, MAP_TILE_ATTRIBUTION, MAP_TILE_URL } from '../../config/map';
+import {
+  KOTA_MAX_BOUNDS,
+  KOTA_MIN_ZOOM,
+  KOTA_MAX_ZOOM,
+  KOTA_VIEW,
+  MAP_TILE_ATTRIBUTION,
+  MAP_TILE_URL,
+} from '../../config/map';
 import {
   formatStraightLine,
   straightLineMetres,
@@ -16,6 +23,40 @@ import {
 
 const FALLBACK_PHOTO =
   'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&q=70';
+
+/** Escape text for safe SVG / HTML attribute use. */
+function esc(s: string): string {
+  return s
+    .replace(/&/g, '&')
+    .replace(/</g, '<')
+    .replace(/>/g, '>')
+    .replace(/"/g, '"');
+}
+
+/**
+ * Circular hover badge (Marseille-style ring).
+ * Name runs around the outer ring; pin sits in the centre.
+ */
+function circleBadgeHtml(label: string, kind: 'hostel' | 'coaching'): string {
+  const short = label.length > 28 ? `${label.slice(0, 26)}…` : label;
+  const ring = kind === 'coaching' ? '#E7B43B' : '#073B55';
+  const fill = kind === 'coaching' ? '#073B55' : '#073B55';
+  const textFill = '#FFFFFF';
+  const top = esc(short.toUpperCase());
+  return `
+<svg xmlns="http://www.w3.org/2000/svg" width="112" height="112" viewBox="0 0 112 112" aria-hidden="true">
+  <defs>
+    <path id="sk-top" d="M 16,56 A 40,40 0 0,1 96,56" fill="none"/>
+    <path id="sk-bot" d="M 96,56 A 40,40 0 0,1 16,56" fill="none"/>
+  </defs>
+  <circle cx="56" cy="56" r="48" fill="${fill}" stroke="${ring}" stroke-width="3"/>
+  <circle cx="56" cy="56" r="10" fill="#FFFFFF"/>
+  <circle cx="56" cy="56" r="5" fill="${ring}"/>
+  <text fill="${textFill}" font-size="8.5" font-weight="700" letter-spacing="1.2" font-family="Inter, system-ui, sans-serif">
+    <textPath href="#sk-top" startOffset="50%" text-anchor="middle">${top}</textPath>
+  </text>
+</svg>`.trim();
+}
 
 function pinIcon(selected: boolean) {
   return L.divIcon({
@@ -27,6 +68,16 @@ function pinIcon(selected: boolean) {
   });
 }
 
+function hostelHoverIcon(name: string) {
+  return L.divIcon({
+    className: 'staykota-pin staykota-hover-badge',
+    html: circleBadgeHtml(name, 'hostel'),
+    iconSize: [112, 112],
+    iconAnchor: [56, 56],
+    popupAnchor: [0, -48],
+  });
+}
+
 const coachIcon = L.divIcon({
   className: 'staykota-pin',
   html: '<span class="staykota-coach-dot"></span>',
@@ -34,6 +85,16 @@ const coachIcon = L.divIcon({
   iconAnchor: [14, 14],
   popupAnchor: [0, -12],
 });
+
+function coachHoverIcon(name: string) {
+  return L.divIcon({
+    className: 'staykota-pin staykota-hover-badge',
+    html: circleBadgeHtml(name, 'coaching'),
+    iconSize: [112, 112],
+    iconAnchor: [56, 56],
+    popupAnchor: [0, -48],
+  });
+}
 
 const userIcon = L.divIcon({
   className: 'staykota-pin',
@@ -73,12 +134,18 @@ function FlyTo({ target }: { target: Coordinates | null }) {
   return null;
 }
 
-type GeoError =
-  | 'denied'
-  | 'unavailable'
-  | 'timeout'
-  | 'unsupported'
-  | 'invalid';
+/** Keep the student inside Kota + ~5 km; soft rubber-band at the edge. */
+function KotaBounds() {
+  const map = useMap();
+  useEffect(() => {
+    map.setMaxBounds(KOTA_MAX_BOUNDS);
+    map.setMinZoom(KOTA_MIN_ZOOM);
+    map.setMaxZoom(KOTA_MAX_ZOOM);
+  }, [map]);
+  return null;
+}
+
+type GeoError = 'denied' | 'unavailable' | 'timeout' | 'unsupported' | 'invalid';
 
 const GEO_COPY: Record<GeoError, string> = {
   denied: 'Location access was denied. You can still browse by locality.',
@@ -210,10 +277,16 @@ export function DiscoveryMap({ hostels, onShowList }: DiscoveryMapProps) {
         <MapContainer
           center={[KOTA_VIEW.lat, KOTA_VIEW.lng]}
           zoom={KOTA_VIEW.zoom}
+          minZoom={KOTA_MIN_ZOOM}
+          maxZoom={KOTA_MAX_ZOOM}
+          maxBounds={KOTA_MAX_BOUNDS}
+          maxBoundsViscosity={0.85}
           scrollWheelZoom
+          zoomControl
           className="h-full w-full"
         >
           <MapReady onReady={() => setReady(true)} />
+          <KotaBounds />
           <FlyTo target={userLocation} />
           <TileLayer
             attribution={MAP_TILE_ATTRIBUTION}
@@ -240,7 +313,17 @@ export function DiscoveryMap({ hostels, onShowList }: DiscoveryMapProps) {
                 key={hostel.id}
                 position={[coords.lat, coords.lng]}
                 icon={pinIcon(selected)}
-                eventHandlers={{ click: () => setSelectedId(hostel.id) }}
+                eventHandlers={{
+                  click: () => setSelectedId(hostel.id),
+                  mouseover: (e) => {
+                    e.target.setIcon(hostelHoverIcon(hostel.name));
+                    e.target.setZIndexOffset(1000);
+                  },
+                  mouseout: (e) => {
+                    e.target.setIcon(pinIcon(selectedId === hostel.id));
+                    e.target.setZIndexOffset(0);
+                  },
+                }}
               >
                 <Popup>
                   <div className="w-52 text-[#073B55]">
@@ -292,8 +375,25 @@ export function DiscoveryMap({ hostels, onShowList }: DiscoveryMapProps) {
             COACHING_CAMPUSES.flatMap((campus) => {
               const coords = toCoordinates(campus.latitude, campus.longitude);
               if (!coords) return [];
+              const label = campus.campusName
+                ? `${campus.brand} · ${campus.campusName}`
+                : campus.name;
               return [
-                <Marker key={campus.id} position={[coords.lat, coords.lng]} icon={coachIcon}>
+                <Marker
+                  key={campus.id}
+                  position={[coords.lat, coords.lng]}
+                  icon={coachIcon}
+                  eventHandlers={{
+                    mouseover: (e) => {
+                      e.target.setIcon(coachHoverIcon(label));
+                      e.target.setZIndexOffset(900);
+                    },
+                    mouseout: (e) => {
+                      e.target.setIcon(coachIcon);
+                      e.target.setZIndexOffset(0);
+                    },
+                  }}
+                >
                   <Popup>
                     <div className="w-52 text-[#073B55]">
                       <p className="text-[10px] font-semibold uppercase tracking-wide text-[#176A96]">Coaching</p>
@@ -322,6 +422,9 @@ export function DiscoveryMap({ hostels, onShowList }: DiscoveryMapProps) {
           )}
         </div>
       </div>
+      <p className="text-xs text-[#506474]">
+        Map is limited to Kota and about 5 km around it. Hover a pin for the name ring; click for details.
+      </p>
     </div>
   );
 }
