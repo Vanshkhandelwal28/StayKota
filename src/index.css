@@ -155,6 +155,16 @@
   border-color: #073b55;
   box-shadow: 0 0 0 3px rgba(7, 59, 85, 0.35);
 }
+.staykota-coach-dot {
+  display: block;
+  width: 14px;
+  height: 14px;
+  margin: 5px 0 0 7px;
+  border-radius: 3px;
+  background: #e7b43b;
+  border: 2px solid #073b55;
+  box-shadow: 0 1px 4px rgba(7, 59, 85, 0.35);
+}
 .staykota-user-dot {
   display: block;
   width: 16px;
