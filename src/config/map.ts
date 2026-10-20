@@ -1,23 +1,24 @@
 /**
  * Tile layers for hostel + coaching maps.
  *
- * Default street: CARTO Positron (light_all) — free, clean, few POI icons
- * so students mainly see our hostel + coaching pins.
- * Satellite: Esri World Imagery (free for reasonable use).
+ * Default street: Esri World Light Gray Canvas — free for reasonable use,
+ * clean (few POI icons), no API key. Students mainly see our hostel +
+ * coaching pins.
  *
- * Optional VITE_CARTO_API_KEY for higher volume; public CDN works without it.
+ * Satellite: Esri World Imagery (also free for reasonable use).
+ *
+ * CARTO was dropped as default because their basemap CDN now returns
+ * "API KEY REQUIRED" without a valid key.
  */
-const CARTO_KEY = import.meta.env.VITE_CARTO_API_KEY as string | undefined;
 
-/** Clean light basemap (Positron-style). Minimal shops/temples on the tiles. */
-export const MAP_TILE_URL = CARTO_KEY
-  ? `https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png?key=${CARTO_KEY}`
-  : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+/** Clean light basemap. No API key. Note Esri uses {z}/{y}/{x} order. */
+export const MAP_TILE_URL =
+  'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}';
 
 export const MAP_TILE_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+  'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, FAO, NOAA, USGS';
 
-/** Satellite imagery (no CARTO key). */
+/** Satellite imagery (no key). */
 export const MAP_SATELLITE_URL =
   'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 
@@ -30,7 +31,7 @@ export const MAP_SATELLITE_ATTRIBUTION =
  * Students cannot pan far outside this area.
  */
 export const KOTA_MAX_BOUNDS: [[number, number], [number, number]] = [
-  [25.10, 75.76],
+  [25.1, 75.76],
   [25.24, 75.92],
 ];
 
