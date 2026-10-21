@@ -4,11 +4,12 @@ import { useEffect, useId, useRef, useState, type ReactNode, type SyntheticEvent
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft, ArrowUpRight, BedDouble, BookOpen, Calendar, Check, Star,
-  CheckCircle2, ChevronLeft, ChevronRight, Droplets, Flag, Heart,
-  Info, MapPin, Share2, ShieldCheck, Users, Utensils, Wifi, Wind, X, Zap,
+  CheckCircle2, ChevronLeft, ChevronRight, Droplets, Flag,
+  Info, MapPin, Share2, ShieldCheck, Users, Utensils, Wifi, Wind, X, Zap, GraduationCap,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { CurvedPhotoGallery, GalleryImage } from '../components/hostel/CurvedPhotoGallery';
+import { GalleryImage } from '../components/hostel/CurvedPhotoGallery';
+import { HostelHeroGallery } from '../components/hostel/HostelHeroGallery';
 import { HostelProximityMap } from '../components/hostel/HostelProximityMap';
 import { RoomShowcase } from '../components/hostel/RoomShowcase';
 import { CAMPUSES } from '../data/campuses';
@@ -22,14 +23,11 @@ const localToday = () => {
   return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
 };
 const readableDate = (value: string) => new Date(value + 'T12:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
-const imageFallback = (event: SyntheticEvent<HTMLImageElement>) => {
-  if (!event.currentTarget.src.endsWith('/images/room-shared.webp')) event.currentTarget.src = '/images/room-shared.webp';
-};
 
 const amenityIcons: Record<string, ReactNode> = {
-  WiFi: <Wifi />, AC: <Wind />, Meals: <Utensils />, Laundry: <Droplets />,
-  'Study Room': <BookOpen />, 'Power Backup': <Zap />, 'Hot Water': <Droplets />,
-  'RO Water': <Droplets />, CCTV: <ShieldCheck />,
+  WiFi: <Wifi size={18} />, AC: <Wind size={18} />, Meals: <Utensils size={18} />, Laundry: <Droplets size={18} />,
+  'Study Room': <BookOpen size={18} />, 'Power Backup': <Zap size={18} />, 'Hot Water': <Droplets size={18} />,
+  'RO Water': <Droplets size={18} />, CCTV: <ShieldCheck size={18} />,
 };
 const amenityLabel = (value: string) => ({ WiFi: 'Wi-Fi', Meals: 'Mess facility', CCTV: 'CCTV', 'Study Room': 'Study space' }[value] || value);
 
@@ -104,12 +102,13 @@ export function HostelDetailPage() {
   const [receipt, setReceipt] = useState<VisitRequest | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
-  const receiptHeading = useRef<HTMLHeadingElement>(null);
   const [shareState, setShareState] = useState<'idle' | 'copied' | 'manual'>('idle');
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState('Incorrect price or availability');
   const [reportSaved, setReportSaved] = useState(false);
   const [reportError, setReportError] = useState('');
+  const [aboutExpanded, setAboutExpanded] = useState(false);
+  const receiptHeading = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     setGalleryOpen(false);
@@ -117,48 +116,49 @@ export function HostelDetailPage() {
     setVisitOpen(false);
     setReceipt(null);
     setShareState('idle');
+    setAboutExpanded(false);
   }, [id]);
+
   useEffect(() => {
     if (user?.role === 'student' && searchParams.get('request') === 'visit' && selectedRoom) {
       setVisitOpen(true);
-      const params = new URLSearchParams(searchParams);
-      params.delete('request');
-      setSearchParams(params, { replace: true });
     }
-  }, [user?.role, searchParams, selectedRoom, setSearchParams]);
-  useEffect(() => { if (receipt) receiptHeading.current?.focus(); }, [receipt]);
-  useEffect(() => {
-    if (shareState !== 'copied') return;
-    const timeout = window.setTimeout(() => setShareState('idle'), 3500);
-    return () => window.clearTimeout(timeout);
-  }, [shareState]);
-  useEffect(() => {
-    if (!galleryOpen) return;
-    const handleKey = (event: KeyboardEvent) => {
-      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-      event.preventDefault();
-      setGalleryIndex(index => (index + (event.key === 'ArrowRight' ? 1 : -1) + galleryImages.length) % galleryImages.length);
-    };
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
-  }, [galleryOpen, galleryImages.length]);
+  }, [user?.role, searchParams, selectedRoom]);
 
-  if (!hostel) return (
-    <section className="detail-not-found">
-      <MapPin size={40} strokeWidth={1.3} />
-      <p className="detail-eyebrow">A DIFFERENT TURN</p>
-      <h1>This stay isn’t on the map.</h1>
-      <p>The listing may be unavailable or awaiting review. Let’s find another room near your campus.</p>
-      <Link className="detail-primary" to={'/explore?campus=' + campus.id}><ArrowLeft size={17} /> Explore hostels</Link>
-    </section>
-  );
+  useEffect(() => {
+    if (receipt && receiptHeading.current) receiptHeading.current.focus();
+  }, [receipt]);
+
+  if (!hostel) {
+    return (
+      <section className="detail-missing">
+        <MapPin size={36} />
+        <h1>This stay isn’t on the map.</h1>
+        <p>The listing may be unavailable or awaiting review. Let’s find another room near your campus.</p>
+        <Link className="detail-primary" to={'/explore?campus=' + campus.id}><ArrowLeft size={17} /> Explore hostels</Link>
+      </section>
+    );
+  }
 
   const saved = isFavourite(hostel.id);
   const distance = distanceKm(hostel, campus);
-  const category = hostel.category === 'co-ed' ? 'Co-ed stay' : hostel.category === 'girls' ? 'Girls hostel' : 'Boys hostel';
+  const category = hostel.category === 'co-ed' ? 'Co-ed' : hostel.category === 'girls' ? 'Girls' : 'Boys';
+  const categoryLabel = hostel.category === 'co-ed' ? 'Co-ed stay' : hostel.category === 'girls' ? 'Girls hostel' : 'Boys hostel';
   const illustrative = hostel.photography !== 'property';
-  const galleryPhotos = galleryImages.map((src, index) => ({ src, label: hostel.photoCaptions?.[src] || `Property photo ${index + 1}`, alt: `${illustrative ? 'Illustrative' : 'Property'} photo: ${hostel.photoCaptions?.[src] || `view ${index + 1}`} at ${hostel.name}` }));
+  const galleryPhotos = galleryImages.map((src, index) => ({
+    src,
+    label: hostel.photoCaptions?.[src] || `Property photo ${index + 1}`,
+    alt: `${illustrative ? 'Illustrative' : 'Property'} photo: ${hostel.photoCaptions?.[src] || `view ${index + 1}`} at ${hostel.name}`,
+  }));
   const review = hostel.reviews && Number.isFinite(hostel.reviews.rating) && hostel.reviews.rating >= 0 && hostel.reviews.rating <= 5 && hostel.reviews.count > 0 ? hostel.reviews : null;
+  const sharingTypes = [...new Set(hostel.roomTypes.filter(r => r.available).map(r => r.sharingType))];
+  const sharingLabels = sharingTypes.map(t => t === 'single' ? 'Single Sharing' : t === 'double' ? 'Double Sharing' : t === 'triple' ? 'Triple Sharing' : t);
+  const startingPrice = availableRooms.length
+    ? Math.min(...availableRooms.map(r => monthlyTotal(r)))
+    : (hostel.roomTypes[0] ? monthlyTotal(hostel.roomTypes[0]) : null);
+  const topAmenities = hostel.amenities.slice(0, 5);
+  const aboutLong = (hostel.description?.length || 0) > 180;
+
   const viewRoom = (room: RoomType) => {
     if (!room.available) return;
     const params = new URLSearchParams(searchParams);
@@ -235,79 +235,231 @@ export function HostelDetailPage() {
     } catch { setReportError('Your browser could not save this report. Please try again.'); }
   };
 
+  const nearbyCampuses = CAMPUSES
+    .map(c => ({ campus: c, km: distanceKm(hostel, c) }))
+    .filter(item => item.km !== null)
+    .sort((a, b) => (a.km ?? 99) - (b.km ?? 99))
+    .slice(0, 5);
+
   return (
     <div className="detail-page">
       <div className="detail-shell">
         <nav className="detail-breadcrumb" aria-label="Breadcrumb">
-          <Link to={safeAppPath(searchParams.get('returnTo'), '/explore?campus=' + campus.id)}><ArrowLeft size={15} /> {searchParams.get('returnTo')?.startsWith('/map') ? 'Back to Kota map' : 'Back to nearby stays'}</Link>
-          <span aria-hidden="true">/</span><span>{hostel.name}</span>
+          <Link to="/">Home</Link>
+          <span aria-hidden="true">›</span>
+          <Link to={safeAppPath(searchParams.get('returnTo'), '/explore?campus=' + campus.id)}>Hostels</Link>
+          <span aria-hidden="true">›</span>
+          <Link to={'/explore?campus=' + campus.id}>{hostel.locality}</Link>
+          <span aria-hidden="true">›</span>
+          <span aria-current="page">{hostel.name}</span>
         </nav>
 
-        <div className="detail-context-bar"><label><BookOpen size={16}/><span className="sr-only">Choose coaching campus</span><select aria-label="Choose coaching campus" value={campus.id} onChange={event => { const params = new URLSearchParams(searchParams); params.set('campus', event.target.value); setSearchParams(params, { replace: true }); }}>{CAMPUSES.map(item => <option key={item.id} value={item.id}>{item.institute} · {item.name}</option>)}</select></label><Link to={`/explore?campus=${campus.id}`}>Browse nearby stays <ArrowUpRight size={14}/></Link></div>
-        <CurvedPhotoGallery key={hostel.id} photos={galleryPhotos} name={hostel.name} illustrative={illustrative} onOpen={index => { setGalleryIndex(index); setGalleryOpen(true); }}/>
+        <div className="detail-hero">
+          <HostelHeroGallery
+            photos={galleryPhotos}
+            name={hostel.name}
+            categoryLabel={category}
+            saved={saved}
+            onSave={handleSave}
+            showSave
+          />
 
-        <header className="detail-heading">
-          <div>
-            <div className="detail-heading__top"><span className="detail-eyebrow">A LITTLE CLOSER TO YOUR NEXT CHAPTER</span><span className="detail-category">{category}</span></div>
-            <h1>{hostel.name}</h1>
-            <p><MapPin size={16} /> {hostel.locality}, Kota <span className="detail-heading__dot">·</span> <a href="#detail-location">See neighbourhood <ArrowUpRight size={14} /></a></p>
-          </div>
-          <div className="detail-heading__actions">
-            <button type="button" className={'detail-outline' + (saved ? ' is-saved' : '')} onClick={handleSave} aria-pressed={saved}><Heart size={17} fill={saved ? 'currentColor' : 'none'} />{saved ? 'Saved' : 'Save stay'}</button>
-            <button type="button" className="detail-outline" onClick={handleShare}><Share2 size={17} />{shareState === 'copied' ? 'Link copied' : 'Share'}</button>
-          </div>
-        </header>
-        {shareState === 'copied' && <p className="detail-notice" role="status">Link copied. Share this room with a parent or friend.</p>}
-        {shareState === 'manual' && <div className="detail-share-fallback" role="status"><label htmlFor="detail-share-link">Copy this link to share your selected room</label><input id="detail-share-link" value={window.location.href} readOnly onFocus={event => event.target.select()} /></div>}
+          <aside className="detail-summary-card">
+            <p className="detail-summary-card__eyebrow">
+              <Star size={14} strokeWidth={2} /> PREMIUM HOSTEL
+            </p>
+            <h1 className="detail-summary-card__title">{hostel.name}</h1>
+            <p className="detail-summary-card__loc">
+              <MapPin size={16} /> {hostel.locality}, Kota
+            </p>
 
-        <div className="detail-summary-row"><div className="detail-summary-price">{selectedRoom ? <><strong>{money(monthlyTotal(selectedRoom))}</strong><span>/ student / month<small>{selectedRoom.name} · fixed total · deposit separate</small></span></> : <strong>Ask about availability</strong>}</div><div className="detail-summary-trust">{review ? <span><Star size={15}/>{review.rating.toFixed(1)} · {review.count} reviews</span> : <span>No reviews supplied</span>}<span>{locationLabel(hostel)} · availability needs confirmation</span></div></div>
-        <div className="detail-summary-actions"><button type="button" className="detail-primary" disabled={!selectedRoom} onClick={startVisit}><Calendar size={17}/>Book a visit <ArrowUpRight size={16}/></button><a className="detail-outline" href="#detail-rooms">View details</a><small>Students book a visit only — direct owner contact is not available. A visit is not a room reservation.</small></div>
+            <div className="detail-summary-card__tags">
+              {sharingLabels.map(label => (
+                <span key={label} className="detail-tag"><Users size={14} /> {label}</span>
+              ))}
+              {hostel.amenities.includes('Meals') && <span className="detail-tag"><Utensils size={14} /> Mess</span>}
+              {hostel.amenities.includes('WiFi') && <span className="detail-tag"><Wifi size={14} /> Wi-Fi</span>}
+              {hostel.amenities.includes('Laundry') && <span className="detail-tag"><Droplets size={14} /> Laundry</span>}
+            </div>
 
-        <div className="detail-campus-strip">
-          <span className="detail-campus-strip__icon"><MapPin size={21} /></span>
-          <div><span className="detail-eyebrow">YOUR DAILY COMMUTE</span><p><strong>{formatDistance(distance)}</strong> from {campus.institute} · {campus.name}<span>{hostel.location?.status === 'demo' || campus.location.status === 'demo' ? 'Illustrative straight-line distance · demo locations' : 'Straight-line estimate · confirm the walking route'}</span></p></div>
+            {startingPrice !== null && (
+              <p className="detail-summary-card__price">
+                <strong>{money(startingPrice)}</strong>
+                <span>/ month from</span>
+              </p>
+            )}
+
+            <div className="detail-summary-card__actions">
+              <a className="detail-primary detail-primary--full" href="#detail-rooms">View details <ArrowUpRight size={16} /></a>
+              <button type="button" className="detail-outline detail-outline--full" disabled={!selectedRoom} onClick={startVisit}>
+                <Calendar size={16} /> Book a visit
+              </button>
+            </div>
+
+            <p className="detail-summary-card__note">
+              Students book a visit only — not a room reservation. {locationLabel(hostel)}.
+            </p>
+
+            <div className="detail-summary-card__meta">
+              {review ? (
+                <span><Star size={14} /> {review.rating.toFixed(1)} · {review.count} reviews</span>
+              ) : (
+                <span>No reviews supplied</span>
+              )}
+              <button type="button" className="detail-text-btn" onClick={handleShare}>
+                <Share2 size={14} /> {shareState === 'copied' ? 'Copied' : 'Share'}
+              </button>
+            </div>
+            {shareState === 'manual' && (
+              <div className="detail-share-fallback" role="status">
+                <label htmlFor="detail-share-link">Copy this link</label>
+                <input id="detail-share-link" value={window.location.href} readOnly onFocus={e => e.target.select()} />
+              </div>
+            )}
+          </aside>
         </div>
 
-        <div className="detail-columns">
+        <div className="detail-quick-strip" role="list">
+          <div className="detail-quick-item" role="listitem">
+            <BedDouble size={20} strokeWidth={1.5} />
+            <div>
+              <span className="detail-quick-label">Room Types</span>
+              <strong>{hostel.roomTypes.map(r => r.name.replace(/ Occupancy| Sharing/g, '')).join(' & ') || '—'}</strong>
+            </div>
+          </div>
+          <div className="detail-quick-item" role="listitem">
+            <Utensils size={20} strokeWidth={1.5} />
+            <div>
+              <span className="detail-quick-label">Food</span>
+              <strong>{hostel.amenities.includes('Meals') ? 'Mess Included' : 'Confirm with visit'}</strong>
+            </div>
+          </div>
+          <div className="detail-quick-item" role="listitem">
+            <Wifi size={20} strokeWidth={1.5} />
+            <div>
+              <span className="detail-quick-label">Amenities</span>
+              <strong>{topAmenities.map(amenityLabel).slice(0, 3).join(', ') || '—'}</strong>
+            </div>
+          </div>
+          <div className="detail-quick-item" role="listitem">
+            <Users size={20} strokeWidth={1.5} />
+            <div>
+              <span className="detail-quick-label">Sharing Type</span>
+              <strong>{sharingLabels.join(' / ') || '—'}</strong>
+            </div>
+          </div>
+          <div className="detail-quick-item" role="listitem">
+            <ShieldCheck size={20} strokeWidth={1.5} />
+            <div>
+              <span className="detail-quick-label">Gender</span>
+              <strong>{categoryLabel}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div className="detail-campus-strip">
+          <span className="detail-campus-strip__icon"><MapPin size={20} /></span>
+          <div>
+            <span className="detail-eyebrow">YOUR DAILY COMMUTE</span>
+            <p>
+              <strong>{formatDistance(distance)}</strong> from {campus.institute} · {campus.name}
+              <span>
+                {hostel.location?.status === 'demo' || campus.location.status === 'demo'
+                  ? 'Illustrative straight-line distance · demo locations'
+                  : 'Straight-line estimate · confirm the walking route'}
+              </span>
+            </p>
+          </div>
+          <label className="detail-campus-select">
+            <span className="sr-only">Choose coaching campus</span>
+            <select
+              aria-label="Choose coaching campus"
+              value={campus.id}
+              onChange={event => {
+                const params = new URLSearchParams(searchParams);
+                params.set('campus', event.target.value);
+                setSearchParams(params, { replace: true });
+              }}
+            >
+              {CAMPUSES.map(item => (
+                <option key={item.id} value={item.id}>{item.institute} · {item.name}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <div className="detail-body">
           <div className="detail-main">
+            <section className="detail-section" id="detail-about">
+              <h2 className="detail-section__title">About this hostel</h2>
+              <p className={'detail-about' + (aboutLong && !aboutExpanded ? ' is-clamped' : '')}>
+                {hostel.description}
+              </p>
+              {aboutLong && (
+                <button type="button" className="detail-readmore" onClick={() => setAboutExpanded(v => !v)}>
+                  {aboutExpanded ? 'Show less' : 'Read more'}
+                </button>
+              )}
+              {hostel.houseRules && hostel.houseRules.length > 0 && (
+                <ul className="detail-highlights">
+                  {hostel.houseRules.slice(0, aboutExpanded ? undefined : 3).map(rule => (
+                    <li key={rule}><Check size={15} strokeWidth={2.5} /> {rule}</li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
             <section className="detail-section" id="detail-rooms" aria-labelledby="room-heading">
-              <div className="detail-section__heading"><div><p className="detail-eyebrow">FIND YOUR FIT</p><h2 id="room-heading">One hostel. Your kind of room.</h2></div><span className="detail-tiny-note">Per student / month</span></div>
-              <p className="detail-section__intro">A little privacy or a little company? Choose a room to see its full monthly cost.</p>
+              <div className="detail-section__heading">
+                <h2 id="room-heading" className="detail-section__title">Room types & pricing</h2>
+                <span className="detail-tiny-note">Per student / month</span>
+              </div>
+              <p className="detail-section__intro">Choose a room to see its full monthly cost. Deposit is separate.</p>
               <div className="detail-room-options">
-                {hostel.roomTypes.map(room => <button key={room.id} type="button" disabled={!room.available} onClick={() => viewRoom(room)} aria-pressed={selectedRoom?.id === room.id} className={'detail-room-option' + (selectedRoom?.id === room.id ? ' is-selected' : '')}>
-                  <span className="detail-room-option__icon"><BedDouble size={25} strokeWidth={1.3} />{selectedRoom?.id === room.id && <span><Check size={12} /></span>}</span>
-                  <span className="detail-room-option__name">{room.name}</span>
-                  <strong>{money(monthlyTotal(room))}<small>/month</small></strong>
-                  <span className={'detail-room-option__availability' + (!room.available ? ' is-full' : '')}>{room.available ? hostel.location?.status === 'demo' ? 'Available in demo' : 'Confirm availability' : 'Currently full'}</span>
-                </button>)}
+                {hostel.roomTypes.map(room => (
+                  <button
+                    key={room.id}
+                    type="button"
+                    disabled={!room.available}
+                    onClick={() => viewRoom(room)}
+                    aria-pressed={selectedRoom?.id === room.id}
+                    className={'detail-room-option' + (selectedRoom?.id === room.id ? ' is-selected' : '')}
+                  >
+                    <span className="detail-room-option__icon">
+                      <BedDouble size={22} strokeWidth={1.4} />
+                      {selectedRoom?.id === room.id && <span><Check size={11} /></span>}
+                    </span>
+                    <span className="detail-room-option__name">{room.name}</span>
+                    <strong>{money(monthlyTotal(room))}<small>/month</small></strong>
+                    <span className={'detail-room-option__availability' + (!room.available ? ' is-full' : '')}>
+                      {room.available ? (hostel.location?.status === 'demo' ? 'Available in demo' : 'Confirm availability') : 'Currently full'}
+                    </span>
+                  </button>
+                ))}
               </div>
               {selectedRoom && (
                 <div className="detail-room-detail">
-                  <RoomShowcase room={selectedRoom} />
+                  <RoomShowcase capacity={selectedRoom.capacity} />
                   <RoomPrice room={selectedRoom} electricity={hostel.electricityPolicy} notes={hostel.extraChargesNote} />
                 </div>
               )}
             </section>
 
-            <section className="detail-section" id="detail-about">
-              <p className="detail-eyebrow">ABOUT THIS STAY</p>
-              <h2>What life feels like here</h2>
-              <p className="detail-about">{hostel.description}</p>
-              {hostel.houseRules && hostel.houseRules.length > 0 && (
-                <ul className="detail-rules">{hostel.houseRules.map(rule => <li key={rule}><Check size={14} />{rule}</li>)}</ul>
-              )}
-            </section>
-
             <section className="detail-section" id="detail-amenities">
-              <p className="detail-eyebrow">FACILITIES</p>
-              <h2>Included for everyday life</h2>
-              <div className="detail-amenities">{hostel.amenities.map(item => <span key={item}>{amenityIcons[item] || <ShieldCheck />}<span>{amenityLabel(item)}</span></span>)}</div>
+              <h2 className="detail-section__title">Amenities & facilities</h2>
+              <div className="detail-amenities">
+                {hostel.amenities.map(item => (
+                  <span key={item} className="detail-amenity-chip">
+                    {amenityIcons[item] || <ShieldCheck size={18} />}
+                    <span>{amenityLabel(item)}</span>
+                  </span>
+                ))}
+              </div>
             </section>
 
             <section className="detail-section" id="detail-location">
-              <p className="detail-eyebrow">NEIGHBOURHOOD</p>
-              <h2>Where you will be</h2>
-              <p>{hostel.address}</p>
+              <h2 className="detail-section__title">Hostel location</h2>
+              <p className="detail-address">{hostel.address}</p>
               <HostelProximityMap hostel={hostel} campus={campus} />
             </section>
 
@@ -316,42 +468,85 @@ export function HostelDetailPage() {
                 <h2>See it before you settle.</h2>
                 <p>Book a visit to confirm the room, entrance and costs. Direct owner contact is not available — students book visits only.</p>
               </div>
-              <div>
-                <button type="button" className="detail-primary" disabled={!selectedRoom} onClick={startVisit}>Book a visit <ArrowUpRight size={16}/></button>
-              </div>
+              <button type="button" className="detail-primary" disabled={!selectedRoom} onClick={startVisit}>
+                Book a visit <ArrowUpRight size={16} />
+              </button>
             </section>
           </div>
 
-          <aside className="detail-aside">
+          <aside className="detail-side">
+            <div className="detail-nearby-card">
+              <h3><GraduationCap size={18} /> Nearby coaching institutes</h3>
+              <ul>
+                {nearbyCampuses.map(({ campus: c, km }) => (
+                  <li key={c.id}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const params = new URLSearchParams(searchParams);
+                        params.set('campus', c.id);
+                        setSearchParams(params, { replace: true });
+                      }}
+                    >
+                      <span>{c.institute}{c.name !== c.institute ? ` (${c.name})` : ''}</span>
+                      <em>{formatDistance(km)}</em>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <Link to={'/explore?campus=' + campus.id} className="detail-nearby-link">
+                View all institutes <ArrowUpRight size={14} />
+              </Link>
+            </div>
+
             <div className="detail-enquiry">
-              <div className="detail-enquiry__symbol"><BedDouble size={24} strokeWidth={1.2} /></div>
               {selectedRoom ? (
                 <>
-                  <h2>{selectedRoom.name}</h2>
+                  <h3>{selectedRoom.name}</h3>
                   <p className="detail-enquiry__price">{money(monthlyTotal(selectedRoom))}<span>/ month</span></p>
                   <p className="detail-enquiry__unit">Fixed charges per student. Electricity separate.</p>
-                  <RoomPrice room={selectedRoom} electricity={hostel.electricityPolicy} />
-                  <button type="button" className="detail-primary detail-primary--full" onClick={startVisit}><Calendar size={18} /> Book a visit <ArrowUpRight size={17} /></button>
+                  <button type="button" className="detail-primary detail-primary--full" onClick={startVisit}>
+                    <Calendar size={17} /> Book a visit
+                  </button>
                   <p className="detail-enquiry__disclaimer">A visit is not a room reservation.</p>
                 </>
               ) : (
                 <>
-                  <h2>Full for now.</h2>
-                  <p className="detail-about">There are no available room options at this stay.</p>
-                  <Link to={'/explore?campus=' + campus.id} className="detail-primary detail-primary--full">Find another stay <ArrowUpRight size={17} /></Link>
+                  <h3>Full for now</h3>
+                  <p className="detail-about">No available room options at this stay.</p>
+                  <Link to={'/explore?campus=' + campus.id} className="detail-primary detail-primary--full">
+                    Find another stay
+                  </Link>
                 </>
               )}
-              <div className="detail-enquiry__footer"><ShieldCheck size={19} /><p>Visit first. Ask questions.<br /><strong>Choose with confidence.</strong></p></div>
             </div>
+
+            <button type="button" className="detail-report-link" onClick={() => { setReportOpen(true); setReportSaved(false); }}>
+              <Flag size={14} /> Report listing issue
+            </button>
           </aside>
         </div>
       </div>
 
-      {selectedRoom && <div className="detail-mobile-bar"><div><span>{selectedRoom.name}</span><strong>{money(monthlyTotal(selectedRoom))}<small>/mo</small></strong></div><button type="button" className="detail-primary" onClick={startVisit}>Book a visit <ArrowUpRight size={17} /></button></div>}
+      {selectedRoom && (
+        <div className="detail-mobile-bar">
+          <div>
+            <span>{selectedRoom.name}</span>
+            <strong>{money(monthlyTotal(selectedRoom))}<small>/mo</small></strong>
+          </div>
+          <button type="button" className="detail-primary" onClick={startVisit}>
+            Book a visit <ArrowUpRight size={16} />
+          </button>
+        </div>
+      )}
 
       <DetailDialog open={galleryOpen} onClose={() => setGalleryOpen(false)} title={hostel.name + ' · photos'} gallery>
         <div className="detail-lightbox">
-          <div className="detail-lightbox__image">{galleryOpen && galleryPhotos.length > 0 && <GalleryImage key={galleryIndex} photo={galleryPhotos[galleryIndex % galleryPhotos.length]} eager errorHint="Close and reopen the photo to retry."/>}</div>
+          <div className="detail-lightbox__image">
+            {galleryOpen && galleryPhotos.length > 0 && (
+              <GalleryImage key={galleryIndex} photo={galleryPhotos[galleryIndex % galleryPhotos.length]} eager errorHint="Close and reopen the photo to retry." />
+            )}
+          </div>
           <div className="detail-lightbox__controls">
             <button type="button" className="detail-icon-button" aria-label="Previous photo" disabled={galleryImages.length < 2} onClick={() => setGalleryIndex(index => (index - 1 + galleryImages.length) % galleryImages.length)}><ChevronLeft /></button>
             <span>{galleryIndex + 1} / {galleryImages.length || 1} <small>{illustrative ? 'Illustrative sample photos' : 'Property photos'}</small></span>
@@ -424,7 +619,30 @@ export function HostelDetailPage() {
       </DetailDialog>
 
       <DetailDialog open={reportOpen} onClose={() => setReportOpen(false)} title="Help keep the details accurate">
-        {reportSaved ? <div className="detail-receipt"><CheckCircle2 size={40} /><h3>Report saved on this device.</h3><p>Thanks for helping improve the sample listing. This demo does not send reports to a moderation team.</p><button type="button" className="detail-primary" onClick={() => setReportOpen(false)}>Back to the hostel</button></div> : <form className="detail-visit-form" onSubmit={saveReport}><p className="detail-form-intro">What should be checked on {hostel.name}?</p><div className="detail-form-field"><label htmlFor="report-reason">Reason</label><select id="report-reason" value={reportReason} onChange={event => setReportReason(event.target.value)}><option>Incorrect price or availability</option><option>Photos or address do not match</option><option>Unclear or unexpected charges</option><option>Other listing information</option></select></div><p className="detail-form-demo"><Info size={15} /> Reports are saved locally in this frontend demo.</p>{reportError && <p role="alert" className="detail-form-error">{reportError}</p>}<button className="detail-primary detail-primary--full" type="submit">Save report <Flag size={16} /></button></form>}
+        {reportSaved ? (
+          <div className="detail-receipt">
+            <CheckCircle2 size={40} />
+            <h3>Report saved on this device.</h3>
+            <p>Thanks for helping improve the sample listing. This demo does not send reports to a moderation team.</p>
+            <button type="button" className="detail-primary" onClick={() => setReportOpen(false)}>Back to the hostel</button>
+          </div>
+        ) : (
+          <form className="detail-visit-form" onSubmit={saveReport}>
+            <p className="detail-form-intro">What should be checked on {hostel.name}?</p>
+            <div className="detail-form-field">
+              <label htmlFor="report-reason">Reason</label>
+              <select id="report-reason" value={reportReason} onChange={event => setReportReason(event.target.value)}>
+                <option>Incorrect price or availability</option>
+                <option>Photos or address do not match</option>
+                <option>Unclear or unexpected charges</option>
+                <option>Other listing information</option>
+              </select>
+            </div>
+            <p className="detail-form-demo"><Info size={15} /> Reports are saved locally in this frontend demo.</p>
+            {reportError && <p role="alert" className="detail-form-error">{reportError}</p>}
+            <button className="detail-primary detail-primary--full" type="submit">Save report <Flag size={16} /></button>
+          </form>
+        )}
       </DetailDialog>
     </div>
   );
