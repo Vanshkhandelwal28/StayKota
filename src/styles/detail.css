@@ -1,1 +1,12 @@
-SEE_LOCAL_FILE
+.detail-page {
+  --detail-ink: #183e37;
+  --detail-muted: #75817a;
+  --detail-line: #e4e8df;
+  --detail-accent: #0b7667;
+  color: var(--detail-ink);
+  background: #faf8f3;
+  padding: 0 0 88px;
+}
+.detail-shell { width: min(1220px, calc(100% - 80px)); margin: 0 auto; }
+.detail-status--confirmed { background: #d1fae5; color: #047857 !important; }
+.detail-receipt__icon--success { background: #d1fae5; color: #059669; }
