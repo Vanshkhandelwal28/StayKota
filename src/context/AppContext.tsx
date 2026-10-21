@@ -90,9 +90,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!data.consentAt) throw new Error('Consent is required to save your visit enquiry.');
     const duplicate = visits.find(v => v.studentId === user.id && v.hostelId === data.hostelId && v.roomTypeId === data.roomTypeId && v.visitDate === data.visitDate && v.status !== 'cancelled');
     if (duplicate) return duplicate;
+    // Instant confirmation: student visit bookings auto-approve (no owner action required).
+    // Backend can later emit notifications while keeping status = confirmed on create.
     const visit: VisitRequest = { ...data, id: `v-${crypto.randomUUID()}`, studentId: user.id, studentName: user.name,
       hostelName: hostel.name, roomTypeName: hostel.roomTypes.find(r => r.id === data.roomTypeId)?.name,
-      status: 'requested', createdAt: new Date().toISOString() };
+      status: 'confirmed', createdAt: new Date().toISOString() };
     setVisits(prev => [visit, ...prev]);
     return visit;
   };
@@ -102,7 +104,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
   const rescheduleVisit = (id: string, date: string) => {
     if (!user || !validVisitDate(date)) throw new Error('Choose a valid future date.');
-    setVisits(prev => prev.map(v => v.id === id && v.status !== 'cancelled' && ((user.role === 'student' && v.studentId === user.id) || (user.role === 'owner' && hostels.some(h => h.id === v.hostelId && h.ownerId === user.id))) ? { ...v, visitDate: date, status: 'requested' } : v));
+    setVisits(prev => prev.map(v => v.id === id && v.status !== 'cancelled' && ((user.role === 'student' && v.studentId === user.id) || (user.role === 'owner' && hostels.some(h => h.id === v.hostelId && h.ownerId === user.id))) ? { ...v, visitDate: date, status: 'confirmed' } : v));
   };
   const updateProfile = (data: Partial<Pick<User, 'name' | 'phone'>>) => {
     if (!user || (data.name !== undefined && !data.name.trim())) return;
