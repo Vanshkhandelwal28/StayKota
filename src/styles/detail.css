@@ -1,12 +1,1 @@
-.detail-page {
-  --detail-ink: #183e37;
-  --detail-muted: #7a8f7e;
-  --detail-line: #dfe7d0;
-  --detail-soft: #f4f7ef;
-  --detail-accent: #2f6b5a;
-  color: var(--detail-ink);
-  background: #faf8f5;
-}
-/* truncated restore will fail - need full file */
-.detail-status--confirmed { background: #d1fae5; color: #047857 !important; }
-.detail-receipt__icon--success { background: #d1fae5; color: #059669; }
+SEE_LOCAL_FILE
