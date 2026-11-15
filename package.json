@@ -9,7 +9,7 @@
     "typecheck": "tsc -b --pretty false",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "vitest run tests/discovery.test.ts tests/maps.test.ts tests/owner.test.ts tests/marker-transition.test.tsx tests/ui-polish.test.tsx",
+    "test": "vitest run tests/discovery.test.ts tests/maps.test.ts tests/owner.test.ts tests/app-context.test.tsx tests/marker-transition.test.tsx tests/ui-polish.test.tsx",
     "test:e2e": "playwright test"
   },
   "dependencies": {
