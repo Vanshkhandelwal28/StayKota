@@ -478,7 +478,7 @@ test('Explore cards highlight matching pins and map clicks open the same-room pu
   await expect(page.locator('.hostel-preview-price')).toContainText('₹5,500');
   await page.getByRole('link',{name:'Back to nearby stays',exact:true}).click();
   await expect(page).toHaveURL(/explore\?.*sharing=double/);
-  await page.getByRole('button',{name:'Centre on campus',exact:true}).click();
+  await page.getByRole('button',{name:'Centre on coaching',exact:true}).click();
   await expect(page.locator('.student-city-map')).toHaveAttribute('data-target','25.146,75.852');
 });
 
@@ -529,6 +529,7 @@ test('owner can auto-fetch current GPS location, upload real photos alongside sa
 
   await page.goto('/login?role=owner');
   await page.getByRole('button', { name: 'Use sample owner account' }).click();
+  await expect(page).toHaveURL(/\/owner$/);
   await page.goto('/owner/listing/new');
 
   await page.getByLabel('Hostel / PG name *').fill('Sunrise Scholars Stay');
