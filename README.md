@@ -22,10 +22,10 @@ Vite normally listens on port 5173. For an externally reachable development serv
 | `npm run preview` | Inspect the production build |
 | `npm run typecheck` | TypeScript project checks |
 | `npm run lint` | Oxlint |
-| `npm test` | Room matching, cost calculation and distance unit tests |
+| `npm test` | Unit and component regression tests for discovery, app-state rules, maps, owners and UI |
 | `npm run test:e2e` | Chromium browser tests; starts its own development server |
 
-Browser tests use `/usr/bin/chromium` when available. Otherwise install the Playwright browser with `npx playwright install chromium`. No database is required. MapLibre and OpenFreeMap need Internet access for the basemap, but no API key.
+Browser tests use `/usr/bin/chromium` when available. Otherwise install the Playwright browser with `npx playwright install chromium`. No database is required. MapLibre and OpenFreeMap need Internet access for the basemap, but no API key. GitHub Actions runs typecheck, lint, unit/component tests, production build and browser tests for pull requests. See the [testing guide](docs/TESTING.md) for test coverage and the pre-PR checklist.
 
 ## Experience
 

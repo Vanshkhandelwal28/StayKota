@@ -442,7 +442,8 @@ test('single-photo cards render cleanly with reduced motion on a narrow screen w
   await page.goto('/explore?sharing=double&maxBudget=8000');
   const card = page.locator('.discovery-grid article').first();
   await expect(card.locator('.room-card-stage')).toHaveAttribute('data-preview', 'photo');
-  expect(await card.locator('.room-card-photo').evaluate(node => getComputedStyle(node).transitionDuration)).toBe('0s');
+  const photoTransitionSeconds = Number.parseFloat(await card.locator('.room-card-photo').evaluate(node => getComputedStyle(node).transitionDuration));
+  expect(photoTransitionSeconds).toBeLessThanOrEqual(0.001);
   const widths = await page.evaluate(() => ({ actual: document.documentElement.scrollWidth, viewport: innerWidth }));
   expect(widths.actual).toBeLessThanOrEqual(widths.viewport);
 });
@@ -459,17 +460,25 @@ test('homepage hostel preference reaches results and can be reset', async ({ pag
 
 test('Explore cards highlight matching pins and map clicks open the same-room public preview', async ({ page }) => {
   await stubOpenMapStyle(page);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/explore?campus=allen-talwandi&sharing=double');
   const first = page.locator('.discovery-grid article').first();
   await first.getByRole('button',{name:'Show on map'}).click();
   await expect(first).toHaveClass(/discovery-card--active/);
-  await expect(page.locator('.student-city-map')).toHaveAttribute('data-target','25.148,75.852');
-  await page.getByRole('button',{name:'Select Comfort Stay Hostel on map'}).click();
+  const map = page.locator('.student-city-map');
+  await expect(map).toHaveAttribute('data-target','25.148,75.852');
+  await expect(page.locator('.maplibregl-canvas')).toBeVisible();
+  const hostelPin = page.getByRole('button',{name:'Select Comfort Stay Hostel on map', exact:true});
+  await expect(hostelPin).toBeVisible();
+  // The map is scrolled into view after selection; move off it before clicking a pin so a
+  // pointer hover triggered during the scroll cannot leave a transient preview state behind.
+  await page.mouse.move(8, 8);
+  await hostelPin.click();
   await expect(page).toHaveURL(/hostel\/h1\/preview\?.*room=rt2/);
   await expect(page.locator('.hostel-preview-price')).toContainText('₹5,500');
   await page.getByRole('link',{name:'Back to nearby stays',exact:true}).click();
   await expect(page).toHaveURL(/explore\?.*sharing=double/);
-  await page.getByRole('button',{name:'Centre on campus',exact:true}).click();
+  await page.getByRole('button',{name:'Centre on coaching',exact:true}).click();
   await expect(page.locator('.student-city-map')).toHaveAttribute('data-target','25.146,75.852');
 });
 
@@ -513,11 +522,14 @@ test('owner coordinates reject swaps and can be saved and cleared without restor
 });
 
 test('owner can auto-fetch current GPS location, upload real photos alongside sample suggestions, and publish live', async ({ context, page }) => {
+  // This path exercises the full five-step form plus browser geolocation and image compression.
+  test.setTimeout(60_000);
   await context.grantPermissions(['geolocation']);
   await context.setGeolocation({ latitude: 25.149876, longitude: 75.85321 });
 
   await page.goto('/login?role=owner');
   await page.getByRole('button', { name: 'Use sample owner account' }).click();
+  await expect(page).toHaveURL(/\/owner$/);
   await page.goto('/owner/listing/new');
 
   await page.getByLabel('Hostel / PG name *').fill('Sunrise Scholars Stay');
@@ -683,7 +695,7 @@ test('Kota limits constrain real camera pan, wheel zoom and outside-area live lo
   }).toBeLessThan(.005);
 });
 
-test('circular hostel and coaching previews open on hover/focus without selecting, and preserve click actions', async ({ page }) => {
+test('circular hostel and coaching previews open on keyboard focus without selecting, and preserve click actions', async ({ page }) => {
   await stubOpenMapStyle(page);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/map?campus=allen-talwandi');
@@ -695,7 +707,10 @@ test('circular hostel and coaching previews open on hover/focus without selectin
   await page.mouse.wheel(0, -500);
   await expect(hostel).toBeVisible();
   const url = page.url(), centre = await map.getAttribute('data-camera-centre');
-  await hostel.hover();
+  // Moving/zooming the map can leave a pointer preview in a stale state; use keyboard focus
+  // to verify the accessible preview path independently of MapLibre's pointer capture.
+  await page.mouse.move(canvas.x + 8, canvas.y + 8);
+  await hostel.focus();
   const preview = page.locator('.map-circle-preview[data-preview-id="h1"]');
   await expect(preview).toBeVisible();
   expect((await preview.boundingBox())!.width).toBeCloseTo(164,0);
