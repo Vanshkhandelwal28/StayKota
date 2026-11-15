@@ -146,6 +146,10 @@ export function HoverMapPin({ children, onActivate, ...preview }: HoverMapPinPro
       className={`student-marker-preview student-marker-preview--${preview.kind}${open ? ' is-open' : ''}`}
       onPointerDownCapture={handlePointerDown}
       onClickCapture={handleClickCapture}
+      onPointerEnter={(event) => {
+        if (event.pointerType !== 'touch' && event.buttons === 0) show();
+      }}
+      onPointerLeave={scheduleHide}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={scheduleHide}
       onFocus={show}

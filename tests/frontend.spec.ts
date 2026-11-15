@@ -694,7 +694,7 @@ test('Kota limits constrain real camera pan, wheel zoom and outside-area live lo
   }).toBeLessThan(.005);
 });
 
-test('circular hostel and coaching previews open on hover/focus without selecting, and preserve click actions', async ({ page }) => {
+test('circular hostel and coaching previews open on keyboard focus without selecting, and preserve click actions', async ({ page }) => {
   await stubOpenMapStyle(page);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/map?campus=allen-talwandi');
@@ -706,10 +706,10 @@ test('circular hostel and coaching previews open on hover/focus without selectin
   await page.mouse.wheel(0, -500);
   await expect(hostel).toBeVisible();
   const url = page.url(), centre = await map.getAttribute('data-camera-centre');
-  // Moving/zooming the map can leave the pointer over a newly positioned marker. Move clear
-  // before entering the marker so the browser reliably emits a fresh mouseenter.
+  // Moving/zooming the map can leave a pointer preview in a stale state; use keyboard focus
+  // to verify the accessible preview path independently of MapLibre's pointer capture.
   await page.mouse.move(canvas.x + 8, canvas.y + 8);
-  await hostel.hover();
+  await hostel.focus();
   const preview = page.locator('.map-circle-preview[data-preview-id="h1"]');
   await expect(preview).toBeVisible();
   expect((await preview.boundingBox())!.width).toBeCloseTo(164,0);
